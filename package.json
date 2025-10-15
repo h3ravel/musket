@@ -1,0 +1,97 @@
+{
+  "name": "@h3ravel/musket",
+  "version": "0.1.0",
+  "description": "Musket CLI is a framework-agnostic CLI framework designed to allow you build artisan-like CLI apps and for use in the H3ravel framework.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./Utils": {
+      "import": "./dist/Utils.js",
+      "require": "./dist/Utils.cjs"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "Utils": [
+        "dist/Utils.d.ts"
+      ],
+      "*": [
+        "dist/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://h3ravel.toneflix.net/guide/deeper/musket",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/h3ravel/musket.git"
+  },
+  "keywords": [
+    "h3ravel",
+    "modern",
+    "web",
+    "H3",
+    "framework",
+    "nodejs",
+    "typescript",
+    "laravel",
+    "artisan",
+    "musket",
+    "commander",
+    "command",
+    "CLI",
+    "build",
+    "console"
+  ],
+  "scripts": {
+    "build": "tsdown --config-loader unconfig",
+    "lint": "eslint . --ext .ts",
+    "barrel": "barrelize >/dev/null",
+    "test": "vitest",
+    "coverage": "vitest --coverage",
+    "cmd": "tsx --experimental-specifier-resolution=node tests/run",
+    "release:patch": "pnpm build && pnpm version patch && git add . && git commit -m \"version: bump console package version\" && pnpm publish --tag latest",
+    "version-patch": "pnpm version patch",
+    "postinstall": "pnpm barrel"
+  },
+  "peerDependencies": {
+    "@h3ravel/support": "^0.14.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.2",
+    "@typescript-eslint/eslint-plugin": "^8.44.0",
+    "@typescript-eslint/parser": "^8.44.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "barrelize": "^1.6.4",
+    "eslint": "^9.36.0",
+    "husky": "^9.1.7",
+    "tsdown": "^0.15.7",
+    "typescript": "^5.9.2",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@h3ravel/shared": "^0.22.2",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.1",
+    "dayjs": "^1.11.18",
+    "execa": "^9.6.0",
+    "glob": "^11.0.3",
+    "preferred-pm": "^4.1.1",
+    "radashi": "^12.6.2",
+    "resolve-from": "^5.0.0",
+    "tsx": "^4.20.5"
+  },
+  "packageManager": "pnpm@10.18.2",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
+}
