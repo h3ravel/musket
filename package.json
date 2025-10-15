@@ -89,5 +89,9 @@
     "radashi": "^12.6.2",
     "resolve-from": "^5.0.0",
     "tsx": "^4.20.5"
+  },
+  "packageManager": "pnpm@10.18.2",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
   }
 }
