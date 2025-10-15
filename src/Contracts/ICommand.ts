@@ -98,6 +98,10 @@ export interface InitConfig {
      */
     baseCommands?: typeof Command[],
     /**
+     * A command that will be run when the script is run without arguments
+     */
+    rootCommand?: typeof Command,
+    /**
      * Paths where musket can search and auto discover commands
      * 
      * 

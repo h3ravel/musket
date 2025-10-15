@@ -123,23 +123,46 @@ export class Musket {
             noInteraction: ['-n, --no-interaction', 'Do not ask any interactive question'],
         }
 
-        /** 
-         * Init Commander
-         */
-        program
-            .name(this.cliName)
-            .version(moduleVersions)
-            .description(this.config.logo ?? altLogo)
-            .configureHelp({ showGlobalOptions: true })
-            .addOption(new Option(additional.quiet[0], additional.quiet[1]))
-            .addOption(new Option(additional.silent[0], additional.silent[1]).implies({ quiet: true }))
-            .addOption(new Option(additional.verbose[0], additional.verbose[1]).choices(['1', '2', '3', 'v', 'vv']).default('1'))
-            .addOption(new Option(additional.noInteraction[0], additional.noInteraction[1]))
-            .action(async () => {
-                const instance = new ListCommand(this.app, this.kernel)
-                instance.setInput(program.opts(), program.args, program.registeredArguments, {}, program)
-                await this.handle(instance)
-            })
+        if (!this.config.rootCommand) {
+            /** 
+             * Run the base Command if a root command was not defined
+             */
+            program
+                .name(this.cliName)
+                .version(moduleVersions)
+                .description(this.config.logo ?? altLogo)
+                .configureHelp({ showGlobalOptions: true })
+                .addOption(new Option(additional.quiet[0], additional.quiet[1]))
+                .addOption(new Option(additional.silent[0], additional.silent[1]).implies({ quiet: true }))
+                .addOption(new Option(additional.verbose[0], additional.verbose[1]).choices(['1', '2', '3', 'v', 'vv']).default('1'))
+                .addOption(new Option(additional.noInteraction[0], additional.noInteraction[1]))
+                .action(async () => {
+                    const instance = new ListCommand(this.app, this.kernel)
+                    instance.setInput(program.opts(), program.args, program.registeredArguments, {}, program)
+                    await this.handle(instance)
+                })
+        } else {
+            /**
+             * Load the root command here
+             */
+            const root = new this.config.rootCommand(this.app, this.kernel)
+            const sign = Signature.parseSignature(root.getSignature(), root)
+            const cmd = program
+                .name(sign.baseCommand)
+                .description(sign.description ?? sign.baseCommand)
+                .configureHelp({ showGlobalOptions: true })
+                .action(async () => {
+                    root.setInput(program.opts(), program.args, program.registeredArguments, {}, program)
+                    await this.handle(root)
+                })
+            if ((sign.options?.length ?? 0) > 0) {
+                sign.options
+                    ?.filter((v, i, a) => a.findIndex(t => t.name === v.name) === i)
+                    .forEach(opt => {
+                        this.makeOption(opt, cmd)
+                    })
+            }
+        }
 
         /**
          * Format the help command display
