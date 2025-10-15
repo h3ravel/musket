@@ -83,7 +83,7 @@ export interface InitConfig {
     /**
      * Packages that should show up up when the `-V` flag is passed
      */
-    packages?: string[] | { name: string, alias: string }[]
+    packages?: (string | { name: string, alias: string })[]
     /**
      * If set to true, information about musket CLI like name and
      * version info will not be unexpectedly shown in console
