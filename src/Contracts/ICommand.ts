@@ -75,7 +75,7 @@ export interface InitConfig {
      * @param met 
      * @returns 
      */
-    resolver?: <X>(cmd: X, met: string) => Promise<X>
+    resolver?: <X extends Command>(cmd: X, met: string) => Promise<X>
     /**
      * If we need to programmatically run the tsdown build command, we will use this config.
      */
