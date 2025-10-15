@@ -284,7 +284,7 @@ export class Musket {
     }
 
     async rebuild (name: string) {
-        if (name !== 'fire' && name !== 'build') {
+        if (name !== 'fire' && name !== 'build' && this.config.allowRebuilds) {
             await build({
                 ...this.tsDownConfig,
                 logLevel: 'silent',

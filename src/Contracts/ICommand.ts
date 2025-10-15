@@ -90,6 +90,10 @@ export interface InitConfig {
      */
     hideMusketInfo?: boolean
     /**
+     * If enabled rebuilds will be triggered when code changes happen
+     */
+    allowRebuilds?: boolean
+    /**
      * Commands that should be autoloaded by default
      */
     baseCommands?: typeof Command[],

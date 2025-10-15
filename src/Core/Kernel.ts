@@ -6,7 +6,6 @@ import { Musket } from '../Musket'
 import { XGeneric } from '@h3ravel/support'
 import { mkdir } from 'node:fs/promises'
 import path from 'node:path'
-import pkg from 'package.json'
 
 export class Kernel {
 
@@ -44,6 +43,7 @@ export class Kernel {
 
         if (!this.config.hideMusketInfo) {
             try {
+                const pkg = (await import(path.join(process.cwd(), 'package.json'))).default
                 pkg.name = this.config.cliName ?? pkg.name
                 this.modules.push(pkg)
             } catch { /** */ }
