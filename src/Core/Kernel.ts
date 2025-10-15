@@ -15,7 +15,7 @@ export class Kernel {
     public modules: XGeneric<{ version: string, name: string }>[] = []
     public basePath: string = ''
     public packages: NonNullable<InitConfig['packages']> = []
-    private config: InitConfig = {}
+    public config: InitConfig = {}
 
     constructor(public app: Application) { }
 

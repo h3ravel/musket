@@ -59,7 +59,7 @@ export class ListCommand extends Command {
 
         this.newLine()
 
-        console.log(altLogo)
+        console.log(this.kernel.config.logo ?? altLogo)
 
         this.newLine()
 
