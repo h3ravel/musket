@@ -14,7 +14,7 @@ export class Kernel {
     public output = typeof Logger
     public modules: XGeneric<{ version: string, name: string }>[] = []
     public basePath: string = ''
-    public packages: string[] = []
+    public packages: NonNullable<InitConfig['packages']> = []
     private config: InitConfig = {}
 
     constructor(public app: Application) { }
@@ -49,9 +49,14 @@ export class Kernel {
 
         for (let i = 0; i < this.packages.length; i++) {
             try {
-                const name = this.packages[i];
+                const item = this.packages[i];
+                const name = typeof item === 'string' ? item : item.name;
+                const alias = typeof item === 'string' ? item : item.alias;
+
                 const modulePath = FileSystem.findModulePkg(name, this.cwd) ?? ''
-                this.modules.push(await import(path.join(modulePath, 'package.json')))
+                const pkg = (await import(path.join(modulePath, 'package.json'))).default
+                pkg.alias = alias
+                this.modules.push(pkg)
 
             } catch (e) {
                 this.modules.push({ version: 'N/A', name: 'Unknown' })

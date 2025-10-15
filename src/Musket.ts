@@ -111,10 +111,10 @@ export class Musket {
          */
         const moduleVersions = this.kernel.modules.map(e => {
             return Logger.parse([
-                [`${Str.of(e.name).after('/').apa().title().replace('cli', 'CLI', false)}:`, 'white'],
+                [`${Str.of(e.alias ?? e.name).afterLast('/').ucfirst().replace(['-', '_'], ' ').replace('cli', 'CLI', false)}:`, 'white'],
                 [e.version, 'green']
             ], ' ', false)
-        }).join('\n')
+        }).join(' | ')
 
         const additional = {
             quiet: ['-q, --quiet', 'Do not output any message except errors and warnings'],

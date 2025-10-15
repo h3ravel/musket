@@ -47,7 +47,10 @@ export class ListCommand extends Command {
 
         /** Output the modules version */
         const version = this.kernel.modules.map(e => {
-            return Logger.log([[Str.of(e.name).after('/').apa().toString(), 'white'], [e.version, 'green']], ' ', false)
+            return Logger.log([
+                [`${Str.of(e.alias ?? e.name).afterLast('/').ucfirst().replace(['-', '_'], ' ').replace('cli', 'CLI', false)}:`, 'white'],
+                [e.version, 'green']
+            ], ' ', false)
         }).join(' | ')
 
         this.newLine()

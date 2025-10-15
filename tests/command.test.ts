@@ -17,7 +17,7 @@ beforeAll(async () => {
     program = await Kernel.init(
         app,
         {
-            packages: ['@h3ravel/shared', '@h3ravel/support'],
+            packages: [{ name: '@h3ravel/shared', alias: 'Shared PKG' }, '@h3ravel/support'],
             skipParsing: true,
             cliName: 'musket-cli',
             discoveryPaths: [path.join(process.cwd(), 'tests/Commands/*.ts')]
