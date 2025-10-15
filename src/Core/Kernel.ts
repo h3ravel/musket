@@ -42,10 +42,12 @@ export class Kernel {
     private async loadRequirements () {
         this.cwd = path.join(process.cwd(), this.basePath)
 
-        try {
-            pkg.name = this.config.cliName ?? pkg.name
-            this.modules.push(pkg)
-        } catch { /** */ }
+        if (!this.config.hideMusketInfo) {
+            try {
+                pkg.name = this.config.cliName ?? pkg.name
+                this.modules.push(pkg)
+            } catch { /** */ }
+        }
 
         for (let i = 0; i < this.packages.length; i++) {
             try {
