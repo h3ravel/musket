@@ -73,6 +73,60 @@ Kernel.init(app, {
 });
 ```
 
+## Creating Commands
+
+Commands in Musket extend the base `Command` class and define a **signature** and **handle()** method.
+
+Example:
+
+```ts
+import { Command } from '@h3ravel/musket';
+
+export default class GreetCommand extends Command {
+  protected signature = 'greet {name}';
+  protected description = 'Display a personalized greeting.';
+
+  async handle() {
+    const name = this.argument('name');
+
+    this.info(`Hello, ${name}!`);
+  }
+}
+```
+
+If your project uses discovery paths (via `discoveryPaths`),
+this command will be automatically registered.
+
+Otherwise, you can manually register it in your application:
+
+```ts
+class Application {
+  registeredCommands = [GreetCommand];
+}
+
+await Kernel.init(app);
+
+// OR
+
+await Kernel.init(app, {
+  baseCommands: [BuildCommand],
+});
+```
+
+## Running Commands
+
+Once your CLI is compiled or built, you can run commands via:
+
+```bash
+node dist/cli.js greet Legacy
+```
+
+Output:
+
+```
+Hello, Legacy!
+```
+
 ## Documentation
 
 The full musket documentation is available [Here](https://h3ravel.toneflix.net/musket)
