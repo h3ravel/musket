@@ -358,7 +358,7 @@ export class Musket {
         config: InitConfig = {}
     ) {
         const commands = config.baseCommands?.map(e => new e(kernel.app, kernel))
-        const cli = new Musket(kernel.app, kernel, commands, config.resolver).configure(config)
+        const cli = new Musket(kernel.app, kernel, commands, config.resolver, config.tsDownConfig).configure(config)
         if (config.cliName) cli.cliName = config.cliName
 
         const command = (await cli.build())

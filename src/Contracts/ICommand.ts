@@ -1,4 +1,5 @@
-import { Command } from '../Core/Command'
+import { type Command } from '../Core/Command'
+import { type Options } from 'tsdown';
 
 export type CommandOption = {
     name: string;
@@ -76,6 +77,10 @@ export interface InitConfig {
      */
     resolver?: <X>(cmd: X, met: string) => Promise<X>
     /**
+     * If we need to programmatically run the tsdown build command, we will use this config.
+     */
+    tsDownConfig?: Options
+    /**
      * Packages that should show up up when the `-V` flag is passed
      */
     packages?: string[] | { name: string, alias: string }[]
@@ -96,5 +101,5 @@ export interface InitConfig {
      * @example 'dist/app/Console/Commands/*.js'
      * @example ['Console/Commands/*.js', 'src/app/Commands/*.js']
      */
-    discoveryPaths?: string | string[],
+    discoveryPaths?: string | string[]
 }
