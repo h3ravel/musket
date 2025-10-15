@@ -156,10 +156,3 @@ The H3ravel framework is open-sourced software licensed under the [MIT license](
 [lini]: https://img.shields.io/github/license/h3ravel/framework
 [tel]: https://github.com/h3ravel/framework/actions/workflows/test.yml
 [tei]: https://github.com/h3ravel/framework/actions/workflows/test.yml/badge.svg
-
-````
-
-```
-
-```
-````
