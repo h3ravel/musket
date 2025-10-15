@@ -84,6 +84,7 @@
     "commander": "^14.0.1",
     "dayjs": "^1.11.18",
     "execa": "^9.6.0",
+    "glob": "^11.0.3",
     "preferred-pm": "^4.1.1",
     "radashi": "^12.6.2",
     "resolve-from": "^5.0.0",

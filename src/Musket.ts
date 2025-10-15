@@ -8,7 +8,7 @@ import { Logger } from '@h3ravel/shared'
 import { Signature } from './Signature'
 import { altLogo } from './logo'
 import { build, Options } from 'tsdown'
-import { glob } from 'node:fs/promises'
+import { glob } from 'glob'
 import path from 'node:path'
 import { HelpCommand } from './Commands/HelpCommand'
 import { ListCommand } from './Commands/ListCommand'
@@ -85,7 +85,7 @@ export class Musket {
         /**
          * CLI Commands auto registration
          */
-        for await (const pth of glob(paths)) {
+        for await (const pth of glob.stream(paths)) {
             const name = path.basename(pth).replace('.js', '').replace('.ts', '')
             try {
                 const cmdClass = (await import(pth))[name]
