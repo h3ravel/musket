@@ -30,7 +30,7 @@ export class Musket {
         private app: Application,
         private kernel: Kernel,
         private baseCommands: Command[] = [],
-        private resolver?: <X extends Command>(cmd: X, met: string) => Promise<X>,
+        private resolver?: NonNullable<InitConfig['resolver']>,
         private tsDownConfig: Options = {}
     ) { }
 
