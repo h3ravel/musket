@@ -109,7 +109,7 @@ await Kernel.init(app);
 // OR
 
 await Kernel.init(app, {
-  baseCommands: [BuildCommand],
+  baseCommands: [GreetCommand, BuildCommand],
 });
 ```
 
