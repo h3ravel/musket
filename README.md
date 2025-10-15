@@ -2,7 +2,7 @@
   <a href="https://h3ravel.toneflix.net"  target="_blank">
     <img src="https://raw.githubusercontent.com/h3ravel/assets/refs/heads/main/logo-full.svg" width="200" alt="H3ravel Logo">
   </a>
-  <h1 align="center"><a href="https://h3ravel.toneflix.net/guide/deeper/musket">Musket CLI</a></h1>
+  <h1 align="center"><a href="https://h3ravel.toneflix.net/musket">Musket CLI</a></h1>
 
 [![Framework][ix]][lx]
 [![Musket Version][i1]][l1]
@@ -72,6 +72,10 @@ Kernel.init(app, {
   discoveryPaths: [path.join(process.cwd(), 'tests/Commands/*.ts')],
 });
 ```
+
+## Documentation
+
+The full musket documentation is available [Here](https://h3ravel.toneflix.net/musket)
 
 ## Contributing
 
