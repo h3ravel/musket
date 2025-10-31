@@ -80,7 +80,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@h3ravel/shared": "^0.22.2",
+    "@h3ravel/shared": "^0.23.1",
     "chalk": "^5.6.2",
     "commander": "^14.0.1",
     "dayjs": "^1.11.18",

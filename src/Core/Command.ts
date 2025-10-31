@@ -1,8 +1,8 @@
 import type { Argument, Command as ICommand } from 'commander'
+import { ChoiceOrSeparatorArray, Choices, Logger, Prompts } from '@h3ravel/shared'
 
 import { Application } from 'src/Contracts/Application'
 import { Kernel } from './Kernel'
-import { Logger } from '@h3ravel/shared'
 import { XGeneric } from '@h3ravel/support'
 
 export class Command {
@@ -233,5 +233,98 @@ export class Command {
     debug (message: string | string[]) {
         Logger.debug(message)
         return this
+    }
+
+    /**
+     * Prompt the user with the given question, accept their input, and 
+     * then return the user's input back to your command.
+     */
+    ask (
+        /**
+         * Message to dislpay
+         */
+        message: string,
+        /**
+         * The default value
+         */
+        def?: string | undefined) {
+        return Prompts.ask(message, def)
+    }
+
+    /**
+     * Allows users to pick from a predefined set of choices when asked a question.
+     */
+    choice (
+        /**
+         * Message to dislpay
+         */
+        message: string,
+        /**
+         * The choices available to the user
+         */
+        choices: Choices,
+        /**
+         * Item index front of which the cursor will initially appear
+         */
+        defaultIndex?: number
+    ) {
+        return Prompts.choice(message, choices, defaultIndex)
+    }
+
+    /**
+     * Ask the user for a simple "yes or no" confirmation. By default, this method returns `false`. 
+     * However, if the user enters y or yes in response to the prompt, the method would return `true`.
+     */
+    confirm (
+        /**
+         * Message to dislpay
+         */
+        message: string,
+        /**
+         * The default value
+         */
+        def?: boolean | undefined
+    ) {
+        return Prompts.confirm(message, def)
+    }
+
+    /**
+     * Prompt the user with the given question, accept their input which will 
+     * not be visible to them as they type in the console, and then return the user's input back to your command.
+     */
+    secret (
+        /**
+        * Message to dislpay
+        */
+        message: string,
+        /**
+         * Mask the user input
+         *
+         * @default true
+         */
+        mask?: string | boolean
+    ) {
+        return Prompts.secret(message, mask)
+    }
+
+    /**
+     * Provide auto-completion for possible choices. The user can still provide any 
+     * answer, regardless of the auto-completion hints.
+     */
+    anticipate (
+        /**
+         * Message to dislpay
+         */
+        message: string,
+        /**
+         * The source of completions
+         */
+        source: string[] | ((input?: string | undefined) => Promise<ChoiceOrSeparatorArray<any>>),
+        /**
+         * Set a default value
+         */
+        def?: string
+    ) {
+        return Prompts.anticipate(message, source, def)
     }
 }
