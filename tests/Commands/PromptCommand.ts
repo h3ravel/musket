@@ -44,7 +44,7 @@ export class PromptCommand extends Command {
         }
 
         if (name === 'anticipate') {
-            const val = await this.anticipate('Who are you?', ['Legacy', 'Kaylah'])
+            const val = await this.anticipate('Who are you?', ['Legacy', 'Kaylah'], def)
             this.info(val)
         }
     }
