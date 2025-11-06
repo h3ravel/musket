@@ -2,6 +2,13 @@ import { defineConfig } from 'tsdown'
 
 export default defineConfig([
   {
+    exports: true,
+    outExtensions: (e) => {
+      return ({
+        js: e.format === 'es' ? '.js' : '.cjs',
+        dts: '.d.ts'
+      })
+    },
     treeshake: true,
     entry: ['src/index.ts'],
     format: ['esm', 'cjs'],
