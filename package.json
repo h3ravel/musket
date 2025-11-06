@@ -5,21 +5,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
-    },
-    "./Utils": {
-      "import": "./dist/Utils.js",
-      "require": "./dist/Utils.cjs"
     }
   },
   "typesVersions": {
     "*": {
-      "Utils": [
-        "dist/Utils.d.ts"
-      ],
       "*": [
-        "dist/index.d.ts"
+        "dist/index.d.mts"
       ]
     }
   },

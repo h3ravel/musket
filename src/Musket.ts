@@ -86,7 +86,7 @@ export class Musket {
          * CLI Commands auto registration
          */
         for await (const pth of glob.stream(paths)) {
-            const name = path.basename(pth).replace('.js', '').replace('.ts', '')
+            const name = path.basename(pth).replace('.js', '').replace('.mjs', '').replace('.ts', '')
             try {
                 const cmdClass = (await import(pth))[name]
                 commands.push(new cmdClass(this.app, this.kernel))
