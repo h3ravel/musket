@@ -1,5 +1,5 @@
 import { type Command } from '../Core/Command'
-import { type Options } from 'tsdown';
+import { type UserConfig } from 'tsdown';
 
 export type CommandOption = {
     name: string;
@@ -79,7 +79,7 @@ export interface InitConfig {
     /**
      * If we need to programmatically run the tsdown build command, we will use this config.
      */
-    tsDownConfig?: Options
+    tsDownConfig?: UserConfig
     /**
      * Packages that should show up up when the `-V` flag is passed
      */

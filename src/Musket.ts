@@ -7,7 +7,7 @@ import { Kernel } from './Core/Kernel'
 import { Logger } from '@h3ravel/shared'
 import { Signature } from './Signature'
 import { altLogo } from './logo'
-import { build, Options } from 'tsdown'
+import { build, UserConfig } from 'tsdown'
 import { glob } from 'glob'
 import path from 'node:path'
 import { HelpCommand } from './Commands/HelpCommand'
@@ -31,7 +31,7 @@ export class Musket {
         private kernel: Kernel,
         private baseCommands: Command[] = [],
         private resolver?: NonNullable<InitConfig['resolver']>,
-        private tsDownConfig: Options = {}
+        private tsDownConfig: UserConfig = {}
     ) { }
 
     async build () {
@@ -86,7 +86,7 @@ export class Musket {
          * CLI Commands auto registration
          */
         for await (const pth of glob.stream(paths)) {
-            const name = path.basename(pth).replace('.js', '').replace('.mjs', '').replace('.ts', '')
+            const name = path.basename(pth).replaceAll(/\.ts|\.js|\.mjs/g, '')
             try {
                 const cmdClass = (await import(pth))[name]
                 commands.push(new cmdClass(this.app, this.kernel))
