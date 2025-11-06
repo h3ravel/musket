@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@h3ravel/shared':
-        specifier: ^0.27.0
-        version: 0.27.0(@types/node@24.7.2)
+        specifier: ^0.27.2
+        version: 0.27.2(@types/node@24.7.2)
       '@h3ravel/support':
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.15.2
+        version: 0.15.2
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -323,11 +323,11 @@ packages:
     resolution: {integrity: sha512-sB5uyeq+dwCWyPi31B2gQlVlo+j5brPlWx4yZBrEaRo/nhdDE8Xke1gsGgtiBdaBTxuTkceLVuVt/pclrasb0A==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@h3ravel/shared@0.27.0':
-    resolution: {integrity: sha512-a9wDGPYelhpk08JEF3Tj+uWIG3WE+VfJNLOwPKONSNvrR1g0nuX+wUijO3SyWc/0f/HCnm3o8yTBnSsabzR8yw==}
+  '@h3ravel/shared@0.27.2':
+    resolution: {integrity: sha512-de24TexmBqe4eZPIN0K5J11UG8uPByc0EV+igJf+iS/A9jf1a0A9/3VkysvonfOWz8XQmeMLj3xWaed3l35brw==}
 
-  '@h3ravel/support@0.15.0':
-    resolution: {integrity: sha512-vXB0H0xTKzUFDf+s8TNuimZj7l57tpojk6llH75ezGWdYc8DdQ7UP/qP2HbyFWj2Gi568OnKhDaAuauZmZL7YA==}
+  '@h3ravel/support@0.15.2':
+    resolution: {integrity: sha512-IteN30bj/7BB6QPlqhger1g7yPIw7mgiFsQzZCJu65JZnQ4sjxWEiqKdTaaku6UhiS8qI/awDjkL4xl2y71GsQ==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2250,7 +2250,7 @@ snapshots:
       '@eslint/core': 0.16.0
       levn: 0.4.1
 
-  '@h3ravel/shared@0.27.0(@types/node@24.7.2)':
+  '@h3ravel/shared@0.27.2(@types/node@24.7.2)':
     dependencies:
       '@inquirer/prompts': 7.9.0(@types/node@24.7.2)
       chalk: 5.6.2
@@ -2263,7 +2263,7 @@ snapshots:
       - '@types/node'
       - crossws
 
-  '@h3ravel/support@0.15.0':
+  '@h3ravel/support@0.15.2':
     dependencies:
       dayjs: 1.11.18
       luxon: 3.7.2
