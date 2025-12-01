@@ -5,8 +5,8 @@ import { Application } from 'src/Contracts/Application'
 import { Kernel } from './Kernel'
 import { XGeneric } from '@h3ravel/support'
 
-export class Command {
-    constructor(protected app: Application, protected kernel: Kernel) { }
+export class Command<A extends Application = Application> {
+    constructor(protected app: A, protected kernel: Kernel<A>) { }
 
     /**
      * The underlying commander instance.
@@ -51,7 +51,7 @@ export class Command {
      */
     public async handle (..._args: any[]): Promise<void> { }
 
-    setApplication (app: Application) {
+    setApplication (app: A) {
         this.app = app
     }
 

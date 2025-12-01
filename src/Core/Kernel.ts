@@ -7,7 +7,7 @@ import { XGeneric } from '@h3ravel/support'
 import { mkdir } from 'node:fs/promises'
 import path from 'node:path'
 
-export class Kernel {
+export class Kernel<A extends Application = Application> {
 
     public cwd!: string
     public output = typeof Logger
@@ -16,14 +16,14 @@ export class Kernel {
     public packages: NonNullable<InitConfig['packages']> = []
     public config: InitConfig = {}
 
-    constructor(public app: Application) { }
+    constructor(public app: A) { }
 
     async ensureDirectoryExists (dir: string) {
         await mkdir(dir, { recursive: true })
     }
 
-    static async init (
-        app: Application,
+    static async init<A extends Application> (
+        app: A,
         config: InitConfig = {}
     ) {
         const instance = new Kernel(app)
