@@ -66,8 +66,8 @@ export class Kernel<A extends Application = Application> {
     /**
      * Run the CLI IO
      */
-    async run () {
-        return await Musket.parse(this, this.config, this.getRegisteredCommands())
+    async run<E extends boolean = false> (returnExit?: E) {
+        return await Musket.parse(this, this.config, this.getRegisteredCommands(), returnExit)
     }
 
     /**

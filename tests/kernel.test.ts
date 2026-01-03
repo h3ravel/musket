@@ -59,5 +59,10 @@ describe('Kernel', () => {
             await program.parseAsync(['node', 'tests/run', 'test']);
             expect(console.log).toHaveBeenCalledWith(chalk.blue('ℹ'), 'TEST OK')
         })
+
+        it('can be configured to return exit code', async () => {
+            const code = await instance.run(true)
+            expect(typeof code === 'number').toBeTruthy()
+        })
     })
 })

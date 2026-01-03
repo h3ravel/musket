@@ -408,19 +408,36 @@ export class Musket {
         await cmd.handle(this.app)
     }
 
-    static async parse (kernel: Kernel, config: InitConfig): Promise<Commander>
-    static async parse (kernel: Kernel, config: InitConfig, commands: typeof Command[]): Promise<Commander>
+    static async parse<E extends boolean = false> (
+        kernel: Kernel,
+        config: InitConfig,
+        returnExit?: E
+    ): Promise<E extends true ? number : Commander>
+    static async parse<E extends boolean = false> (
+        kernel: Kernel,
+        config: InitConfig,
+        commands: typeof Command[],
+        returnExit?: E
+    ): Promise<E extends true ? number : Commander>
     static async parse (
         kernel: Kernel,
         config: InitConfig = {},
-        extraCommands: typeof Command[] = []
+        extraCommands: typeof Command[] | boolean = [],
+        returnExit: boolean = false
     ) {
+        let exitCode = 0
+        if (typeof extraCommands === 'boolean') {
+            returnExit = extraCommands
+            extraCommands = []
+        }
+
         const commands = config.baseCommands?.concat(extraCommands)?.map(e => new e(kernel.app, kernel))
         const cli = new Musket(kernel.app, kernel, commands, config.resolver, config.tsDownConfig).configure(config)
         if (config.cliName) cli.cliName = config.cliName
 
         const command = (await cli.build())
             .exitOverride((e) => {
+                exitCode = e.exitCode
                 if (e.exitCode <= 0) return
                 Logger.log('Unknown command or argument.', 'white')
                 Logger.log([
@@ -431,11 +448,15 @@ export class Musket {
             })
 
         if (!config.skipParsing) {
-            await command.parseAsync(process.argv).catch(e => e)
+            await command.parseAsync(process.argv).catch(e => void e)
         }
 
         if (cli.app) {
             cli.app.musket = cli
+        }
+
+        if (returnExit === true) {
+            return exitCode
         }
 
         return command
