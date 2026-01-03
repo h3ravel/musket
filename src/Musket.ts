@@ -120,7 +120,7 @@ export class Musket {
      * @param command 
      */
     registerCommands (commands: Command[]) {
-        commands.forEach(e => this.addCommand(e))
+        commands.forEach(this.addCommand)
 
         return this
     }

@@ -121,7 +121,7 @@ export class Kernel<A extends Application = Application> {
      * @param command 
      */
     registerCommands (commands: typeof Command[]) {
-        commands.forEach(e => this.commands.add(e))
+        commands.forEach(this.commands.add)
 
         return this
     }
