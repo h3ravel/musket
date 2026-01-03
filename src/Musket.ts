@@ -1,20 +1,18 @@
-
+import { Argument, Command as Commander, Option } from 'commander'
+import { Arr, Str } from '@h3ravel/support'
 import { CommandOption, InitConfig, ParsedCommand } from './Contracts/ICommand'
-import { Argument, Option, program, type Command as Commander } from 'commander'
+import { UserConfig, build } from 'tsdown'
 
+import { Application } from './Contracts/Application'
 import { Command } from './Core/Command'
+import { HelpCommand } from './Commands/HelpCommand'
 import { Kernel } from './Core/Kernel'
+import { ListCommand } from './Commands/ListCommand'
 import { Logger } from '@h3ravel/shared'
 import { Signature } from './Signature'
 import { altLogo } from './logo'
-import { build, UserConfig } from 'tsdown'
 import { glob } from 'glob'
 import path from 'node:path'
-import { HelpCommand } from './Commands/HelpCommand'
-import { ListCommand } from './Commands/ListCommand'
-import { Application } from './Contracts/Application'
-import { Arr, Str } from '@h3ravel/support'
-
 
 export class Musket {
     /**
@@ -25,6 +23,7 @@ export class Musket {
     public cliName: string = 'musket'
     private config: InitConfig = {}
     private commands: ParsedCommand[] = []
+    private program: Commander
 
     constructor(
         private app: Application,
@@ -32,7 +31,9 @@ export class Musket {
         private baseCommands: Command[] = [],
         private resolver?: NonNullable<InitConfig['resolver']>,
         private tsDownConfig: UserConfig = {}
-    ) { }
+    ) {
+        this.program = new Commander()
+    }
 
     async build () {
         await this
@@ -42,10 +43,11 @@ export class Musket {
     }
 
     private loadBaseCommands () {
-        const commands: Command[] = this.baseCommands.concat([
-            new HelpCommand(this.app, this.kernel),
-            new ListCommand(this.app, this.kernel),
-        ])
+        const commands: Command[] = this.baseCommands
+            .concat([
+                new HelpCommand(this.app, this.kernel),
+                new ListCommand(this.app, this.kernel),
+            ])
 
         commands.forEach(e => this.addCommand(e))
 
@@ -117,10 +119,17 @@ export class Musket {
      * 
      * @param command 
      */
-    resolveCommands (commands: Command[]) {
+    registerCommands (commands: Command[]) {
         commands.forEach(e => this.addCommand(e))
 
         return this
+    }
+
+    /**
+     * Get all the registered commands
+     */
+    getRegisteredCommands (): ParsedCommand[] {
+        return this.commands
     }
 
     private async initialize () {
@@ -150,7 +159,7 @@ export class Musket {
             /** 
              * Run the base Command if a root command was not defined
              */
-            program
+            this.program
                 .name(this.cliName)
                 .version(moduleVersions)
                 .description(this.config.logo ?? altLogo)
@@ -161,7 +170,7 @@ export class Musket {
                 .addOption(new Option(additional.noInteraction[0], additional.noInteraction[1]))
                 .action(async () => {
                     const instance = new ListCommand(this.app, this.kernel)
-                    instance.setInput(program.opts(), program.args, program.registeredArguments, {}, program)
+                    instance.setInput(this.program.opts(), this.program.args, this.program.registeredArguments, {}, this.program)
                     await this.handle(instance)
                 })
         } else {
@@ -170,12 +179,12 @@ export class Musket {
              */
             const root = new this.config.rootCommand(this.app, this.kernel)
             const sign = Signature.parseSignature(root.getSignature(), root)
-            const cmd = program
+            const cmd = this.program
                 .name(sign.baseCommand)
                 .description(sign.description ?? sign.baseCommand)
                 .configureHelp({ showGlobalOptions: true })
                 .action(async () => {
-                    root.setInput(program.opts(), program.args, program.registeredArguments, {}, program)
+                    root.setInput(this.program.opts(), this.program.args, this.program.registeredArguments, {}, this.program)
                     await this.handle(root)
                 })
             if ((sign.options?.length ?? 0) > 0) {
@@ -190,7 +199,7 @@ export class Musket {
         /**
          * Format the help command display
          */
-        program.configureHelp({
+        this.program.configureHelp({
             styleTitle: (str) => Logger.log(str, 'yellow', false),
             styleOptionTerm: (str) => Logger.log(str, 'green', false),
             styleArgumentTerm: (str) => Logger.log(str, 'green', false),
@@ -237,12 +246,12 @@ export class Musket {
                  * Initialize the base command
                  */
                 const cmd = command.isHidden
-                    ? program
-                    : program
+                    ? this.program
+                    : this.program
                         .command(command.baseCommand)
                         .description(command.description ?? '')
                         .action(async () => {
-                            instance.setInput(cmd.opts(), cmd.args, cmd.registeredArguments, command, program)
+                            instance.setInput(cmd.opts(), cmd.args, cmd.registeredArguments, command, this.program)
                             await this.handle(instance)
                         })
 
@@ -264,11 +273,11 @@ export class Musket {
                     .subCommands
                     .filter((v, i, a) => !v.shared && a.findIndex(t => t.name === v.name) === i)
                     .forEach(sub => {
-                        const cmd = program
+                        const cmd = this.program
                             .command(`${command.baseCommand}:${sub.name}`)
                             .description(sub.description || '')
                             .action(async () => {
-                                instance.setInput(cmd.opts(), cmd.args, cmd.registeredArguments, sub, program)
+                                instance.setInput(cmd.opts(), cmd.args, cmd.registeredArguments, sub, this.program)
                                 await this.handle(instance)
                             })
 
@@ -301,7 +310,7 @@ export class Musket {
                 /**
                  * Initialize command with options
                  */
-                const cmd = program
+                const cmd = this.program
                     .command(command.baseCommand)
                     .description(command.description ?? '')
 
@@ -313,7 +322,7 @@ export class Musket {
                     })
 
                 cmd.action(async () => {
-                    instance.setInput(cmd.opts(), cmd.args, cmd.registeredArguments, command, program)
+                    instance.setInput(cmd.opts(), cmd.args, cmd.registeredArguments, command, this.program)
                     await this.handle(instance)
                 })
             }
@@ -322,11 +331,11 @@ export class Musket {
         /** 
          * Rebuild the app on every command except fire so we wont need TS
          */
-        program.hook('preAction', async (_, cmd) => {
+        this.program.hook('preAction', async (_, cmd) => {
             this.rebuild(cmd.name())
         })
 
-        return program
+        return this.program
     }
 
     async rebuild (name: string) {
@@ -399,11 +408,14 @@ export class Musket {
         await cmd.handle(this.app)
     }
 
+    static async parse (kernel: Kernel, config: InitConfig): Promise<Commander>
+    static async parse (kernel: Kernel, config: InitConfig, commands: typeof Command[]): Promise<Commander>
     static async parse (
         kernel: Kernel,
-        config: InitConfig = {}
+        config: InitConfig = {},
+        extraCommands: typeof Command[] = []
     ) {
-        const commands = config.baseCommands?.map(e => new e(kernel.app, kernel))
+        const commands = config.baseCommands?.concat(extraCommands)?.map(e => new e(kernel.app, kernel))
         const cli = new Musket(kernel.app, kernel, commands, config.resolver, config.tsDownConfig).configure(config)
         if (config.cliName) cli.cliName = config.cliName
 

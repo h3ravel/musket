@@ -2,6 +2,7 @@ import { MockInstance, afterEach, beforeAll, beforeEach, describe, expect, it, v
 
 import { Command } from "../src/Core/Command";
 import { Kernel } from "../src/Core/Kernel";
+import { TestCommand } from "./Commands/TestCommand";
 import chalk from "chalk";
 import path from "node:path";
 
@@ -26,6 +27,7 @@ beforeAll(() => {
         .setCwd(process.cwd())
         .setConfig(config)
         .setPackages(pacakges)
+        .registerCommands([TestCommand])
         .bootstrap();
 })
 
@@ -52,10 +54,10 @@ describe('Kernel', () => {
             expect(instance.getPackages()).toBe(pacakges)
         })
 
-        it('runs the hello command', async () => {
+        it('runs the test command', async () => {
             const program = await instance.run()
-            await program.parseAsync(['node', 'tests/run', 'hello']);
-            expect(console.log).toHaveBeenCalledWith(chalk.blue('ℹ'), 'HELLO')
+            await program.parseAsync(['node', 'tests/run', 'test']);
+            expect(console.log).toHaveBeenCalledWith(chalk.blue('ℹ'), 'TEST OK')
         })
     })
 })

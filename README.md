@@ -79,6 +79,7 @@ You can also initialize **Musket CLI** with precise controls
 
 ```ts
 import { Kernel } from 'h3ravel/musket';
+import { TestCommand } from './TestCommand';
 
 const app = new Application();
 
@@ -92,6 +93,7 @@ const instance = new Kernel(app)
     { name: '@h3ravel/shared', alias: 'Shared PKG' },
     '@h3ravel/support',
   ])
+  .registerCommands([TestCommand])
   .bootstrap();
 
 return await instance.run();

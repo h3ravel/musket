@@ -1,6 +1,7 @@
 import { FileSystem, Logger } from '@h3ravel/shared'
 
 import { Application } from 'src/Contracts/Application'
+import { Command } from './Command'
 import { InitConfig } from 'src/Contracts/ICommand'
 import { Musket } from '../Musket'
 import { XGeneric } from '@h3ravel/support'
@@ -22,6 +23,11 @@ export class Kernel<A extends Application = Application> {
      * The base path for the CLI app
      */
     public basePath: string = ''
+
+    /**
+     * A list of pre-registered CLI commands
+     */
+    private commands = new Set<typeof Command>([])
 
     /**
      * Packages that should show up up when the -V flag is passed
@@ -61,7 +67,7 @@ export class Kernel<A extends Application = Application> {
      * Run the CLI IO
      */
     async run () {
-        return await Musket.parse(this, this.config)
+        return await Musket.parse(this, this.config, this.getRegisteredCommands())
     }
 
     /**
@@ -107,6 +113,24 @@ export class Kernel<A extends Application = Application> {
      */
     getPackages (): NonNullable<InitConfig['packages']> {
         return this.packages
+    }
+
+    /**
+     * Push a list of new commands to commands stack
+     * 
+     * @param command 
+     */
+    registerCommands (commands: typeof Command[]) {
+        commands.forEach(e => this.commands.add(e))
+
+        return this
+    }
+
+    /**
+     * Get all the pre-registered commands
+     */
+    getRegisteredCommands (): typeof Command[] {
+        return Array.from(this.commands)
     }
 
     /**
