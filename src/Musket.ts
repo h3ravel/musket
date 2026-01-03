@@ -96,8 +96,26 @@ export class Musket {
         commands.forEach(e => this.addCommand(e))
     }
 
+    /**
+     * Push a new command into the commands stack
+     * 
+     * @param command 
+     */
     addCommand (command: Command) {
-        this.commands.push(Signature.parseSignature(command.getSignature(), command))
+        this.commands.push(
+            Signature.parseSignature(command.getSignature(), command)
+        )
+    }
+
+    /**
+     * Push a list of new commands to commands stack
+     * 
+     * @param command 
+     */
+    resolveCommands (commands: Command[]) {
+        commands.forEach(e => this.addCommand(e))
+
+        return this
     }
 
     private async initialize () {
