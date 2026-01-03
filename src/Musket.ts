@@ -35,8 +35,9 @@ export class Musket {
     ) { }
 
     async build () {
-        this.loadBaseCommands()
-        await this.loadDiscoveredCommands()
+        await this
+            .loadBaseCommands()
+            .loadDiscoveredCommands()
         return await this.initialize()
     }
 
@@ -47,6 +48,8 @@ export class Musket {
         ])
 
         commands.forEach(e => this.addCommand(e))
+
+        return this
     }
 
     /**
@@ -105,6 +108,8 @@ export class Musket {
         this.commands.push(
             Signature.parseSignature(command.getSignature(), command)
         )
+
+        return this
     }
 
     /**
