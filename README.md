@@ -73,6 +73,32 @@ Kernel.init(app, {
 });
 ```
 
+### Advanced Initialization
+
+You can also initialize **Musket CLI** with precise controls
+
+```ts
+import { Kernel } from 'h3ravel/musket';
+
+const app = new Application();
+
+const instance = new Kernel(app)
+  .setCwd(process.cwd())
+  .setConfig({
+    cliName: 'musket-cli',
+    discoveryPaths: [path.join(process.cwd(), 'tests/Commands/*.ts')],
+  })
+  .setPackages([
+    { name: '@h3ravel/shared', alias: 'Shared PKG' },
+    '@h3ravel/support',
+  ])
+  .bootstrap();
+
+return await instance.run();
+```
+
+> NB: Packages in the config will be ignored when initializing in this way, as a work around, chain the `setPackages` method to the Kernel intance and pass your options
+
 ## Creating Commands
 
 Commands in Musket extend the base `Command` class and define a **signature** and **handle()** method.
