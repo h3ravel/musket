@@ -1,8 +1,8 @@
 import { FileSystem, Logger } from '@h3ravel/shared'
+import { KernelConfig, PackageMeta } from 'src/Contracts/ICommand'
 
 import { Application } from 'src/Contracts/Application'
 import { Command } from './Command'
-import { InitConfig } from 'src/Contracts/ICommand'
 import { Musket } from '../Musket'
 import { XGeneric } from '@h3ravel/support'
 import { createRequire } from 'node:module'
@@ -17,7 +17,7 @@ export class Kernel<A extends Application = Application> {
 
     public output = typeof Logger
 
-    public modules: XGeneric<{ version: string, name: string }>[] = []
+    public modules: XGeneric<{ version: string, name: string, base?: boolean, alias?: string }>[] = []
 
     /**
      * The base path for the CLI app
@@ -32,12 +32,12 @@ export class Kernel<A extends Application = Application> {
     /**
      * Packages that should show up up when the -V flag is passed
      */
-    private packages: NonNullable<InitConfig['packages']> = []
+    private packages: PackageMeta[] = []
 
     /**
      * The CLI configuration options
      */
-    private config: InitConfig = {}
+    private config: KernelConfig = {}
 
     constructor(public app: A) { }
 
@@ -54,7 +54,7 @@ export class Kernel<A extends Application = Application> {
      */
     static async init<A extends Application> (
         app: A,
-        config: InitConfig = {}
+        config: KernelConfig = {}
     ) {
         return await new Kernel(app)
             .setConfig(config)
@@ -73,7 +73,7 @@ export class Kernel<A extends Application = Application> {
     /**
      * Set the configuration for the CLI
      */
-    setConfig (config: InitConfig) {
+    setConfig (config: KernelConfig) {
         this.config = config
         return this
     }
@@ -81,7 +81,7 @@ export class Kernel<A extends Application = Application> {
     /**
      * Get the configuration for the CLI
      */
-    getConfig (): InitConfig {
+    getConfig (): KernelConfig {
         return this.config
     }
 
@@ -103,7 +103,7 @@ export class Kernel<A extends Application = Application> {
     /**
      * Set the packages that should show up up when the -V flag is passed
      */
-    setPackages (packages: NonNullable<InitConfig['packages']>) {
+    setPackages (packages: PackageMeta[]) {
         this.packages = packages
         return this
     }
@@ -111,7 +111,7 @@ export class Kernel<A extends Application = Application> {
     /**
      * Get the packages that should show up up when the -V flag is passed
      */
-    getPackages (): NonNullable<InitConfig['packages']> {
+    getPackages (): PackageMeta[] {
         return this.packages
     }
 
@@ -134,16 +134,17 @@ export class Kernel<A extends Application = Application> {
     }
 
     /**
-     * Bootstrap the CLI
+     * Prepares the CLI for execution
      */
-    bootstrap () {
+    bootstrap (): this {
+        let version = this.config.version;
         const require = createRequire(import.meta.url)
         this.cwd ??= path.join(process.cwd(), this.basePath)
 
         if (!this.config.hideMusketInfo) {
             try {
                 const pkg = require(path.join(process.cwd(), 'package.json'))
-                pkg.name = this.config.cliName ?? pkg.name
+                pkg.name = this.config.name ?? pkg.name
                 this.modules.push(pkg)
             } catch { /** */ }
         }
@@ -153,15 +154,32 @@ export class Kernel<A extends Application = Application> {
                 const item = this.packages[i];
                 const name = typeof item === 'string' ? item : item.name;
                 const alias = typeof item === 'string' ? item : item.alias;
+                const base = typeof item === 'string' ? false : item.base;
 
                 const modulePath = FileSystem.findModulePkg(name, this.cwd) ?? ''
                 const pkg = require(path.join(modulePath, 'package.json'))
                 pkg.alias = alias
+                pkg.base = base
+                if (base === true && version) {
+                    pkg.version = version
+                }
                 this.modules.push(pkg)
 
             } catch (e) {
                 this.modules.push({ version: 'N/A', name: 'Unknown' })
             }
+        }
+
+        if (this.packages.length < 1) {
+            if (!version) {
+                version = typeof this.app.version === 'function'
+                    ? this.app.version()
+                    : (typeof this.app.getVersion === 'function'
+                        ? this.app.getVersion()
+                        : this.app.version
+                    )
+            }
+            this.modules.push({ version: version ?? 'N/A', name: 'Musket CLI' })
         }
 
         return this

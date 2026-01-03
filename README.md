@@ -68,14 +68,14 @@ Musket allows passing a `config` object that alters it's behavior and provide so
 ```ts
 Kernel.init(app, {
   packages: ['@h3ravel/shared', '@h3ravel/support'],
-  cliName: 'musket-cli',
+  name: 'musket-cli',
   discoveryPaths: [path.join(process.cwd(), 'tests/Commands/*.ts')],
 });
 ```
 
 ### Advanced Initialization
 
-You can also initialize **Musket CLI** with precise controls
+If you need fine grained control with your initialization, `Musket CLI` exposes just the right methods to enable you do just that, when when initializing the CLI in this manner, the `packages` config property is completely ignored, as a work around, chain the `setPackages` method to the Kernel intance to achieve the same results.
 
 ```ts
 import { Kernel } from 'h3ravel/musket';
@@ -86,7 +86,7 @@ const app = new Application();
 const instance = new Kernel(app)
   .setCwd(process.cwd())
   .setConfig({
-    cliName: 'musket-cli',
+    name: 'musket-cli',
     discoveryPaths: [path.join(process.cwd(), 'tests/Commands/*.ts')],
   })
   .setPackages([
@@ -98,8 +98,6 @@ const instance = new Kernel(app)
 
 return await instance.run();
 ```
-
-> NB: Packages in the config will be ignored when initializing in this way, as a work around, chain the `setPackages` method to the Kernel intance and pass your options
 
 ## Creating Commands
 

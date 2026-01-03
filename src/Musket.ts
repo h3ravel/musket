@@ -1,6 +1,6 @@
 import { Argument, Command as Commander, Option } from 'commander'
 import { Arr, Str } from '@h3ravel/support'
-import { CommandOption, InitConfig, ParsedCommand } from './Contracts/ICommand'
+import { CommandMethodResolver, CommandOption, KernelConfig, ParsedCommand } from './Contracts/ICommand'
 import { UserConfig, build } from 'tsdown'
 
 import { Application } from './Contracts/Application'
@@ -20,8 +20,8 @@ export class Musket {
      * 
      * @default musket
      */
-    public cliName: string = 'musket'
-    private config: InitConfig = {}
+    public name: string = 'musket'
+    private config: KernelConfig = {}
     private commands: ParsedCommand[] = []
     private program: Commander
 
@@ -29,7 +29,7 @@ export class Musket {
         private app: Application,
         private kernel: Kernel,
         private baseCommands: Command[] = [],
-        private resolver?: NonNullable<InitConfig['resolver']>,
+        private resolver?: CommandMethodResolver,
         private tsDownConfig: UserConfig = {}
     ) {
         this.program = new Commander()
@@ -60,7 +60,7 @@ export class Musket {
      * @param config 
      * @returns 
      */
-    public configure (config: InitConfig) {
+    public configure (config: KernelConfig) {
         this.config = config
         return this
     }
@@ -160,7 +160,7 @@ export class Musket {
              * Run the base Command if a root command was not defined
              */
             this.program
-                .name(this.cliName)
+                .name(this.name)
                 .version(moduleVersions)
                 .description(this.config.logo ?? altLogo)
                 .configureHelp({ showGlobalOptions: true })
@@ -410,18 +410,18 @@ export class Musket {
 
     static async parse<E extends boolean = false> (
         kernel: Kernel,
-        config: InitConfig,
+        config: KernelConfig,
         returnExit?: E
     ): Promise<E extends true ? number : Commander>
     static async parse<E extends boolean = false> (
         kernel: Kernel,
-        config: InitConfig,
+        config: KernelConfig,
         commands: typeof Command[],
         returnExit?: E
     ): Promise<E extends true ? number : Commander>
     static async parse (
         kernel: Kernel,
-        config: InitConfig = {},
+        config: KernelConfig = {},
         extraCommands: typeof Command[] | boolean = [],
         returnExit: boolean = false
     ) {
@@ -433,7 +433,7 @@ export class Musket {
 
         const commands = config.baseCommands?.concat(extraCommands)?.map(e => new e(kernel.app, kernel))
         const cli = new Musket(kernel.app, kernel, commands, config.resolver, config.tsDownConfig).configure(config)
-        if (config.cliName) cli.cliName = config.cliName
+        if (config.name) cli.name = config.name
 
         const command = (await cli.build())
             .exitOverride((e) => {
@@ -442,7 +442,7 @@ export class Musket {
                 Logger.log('Unknown command or argument.', 'white')
                 Logger.log([
                     ['Run', 'white'],
-                    [`\`${config.cliName} --help\``, ['grey', 'italic']],
+                    [`\`${config.name} --help\``, ['grey', 'italic']],
                     ['to see available commands.', 'white']
                 ], ' ')
             })

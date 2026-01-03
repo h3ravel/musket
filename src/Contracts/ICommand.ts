@@ -53,17 +53,27 @@ export type ParsedCommand = {
     options?: CommandOption[];
 };
 
-export interface InitConfig {
+export type PackageMeta = string | { name: string, alias: string, base?: boolean }
+
+export type CommandMethodResolver = <X extends Command>(cmd: X, met: any) => Promise<X>
+
+export interface KernelConfig {
     /**
      * ASCII Art style logo
      */
     logo?: string
     /**
-     * The name of the CLI app we're building
+     * The name of the CLI app we're running
      * 
      * @default musket
      */
-    cliName?: string
+    name?: string
+    /**
+     * The version of the CLI app we're running (if provided, this will overwrite the value of resolved version from packages config marked as base)
+     * 
+     * @default musket
+     */
+    version?: string
     /**
      * Don't parse the command, usefull for testing or manual control
      */
@@ -75,7 +85,7 @@ export interface InitConfig {
      * @param met 
      * @returns 
      */
-    resolver?: <X extends Command>(cmd: X, met: any) => Promise<X>
+    resolver?: CommandMethodResolver
     /**
      * If we need to programmatically run the tsdown build command, we will use this config.
      */
@@ -83,7 +93,7 @@ export interface InitConfig {
     /**
      * Packages that should show up up when the `-V` flag is passed
      */
-    packages?: (string | { name: string, alias: string })[]
+    packages?: PackageMeta[]
     /**
      * If set to true, information about musket CLI like name and
      * version info will not be unexpectedly shown in console
