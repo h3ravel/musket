@@ -45,8 +45,8 @@ export class Musket<A extends Application = Application> {
     private loadBaseCommands () {
         const commands: Command<A>[] = this.baseCommands
             .concat([
-                new HelpCommand(this.app, this.kernel) as never,
-                new ListCommand(this.app, this.kernel) as never,
+                new HelpCommand(this.app, this.kernel),
+                new ListCommand(this.app, this.kernel),
             ])
 
         commands.forEach(e => this.addCommand(e))
@@ -108,7 +108,7 @@ export class Musket<A extends Application = Application> {
      */
     addCommand (command: Command<A>) {
         this.commands.push(
-            Signature.parseSignature(command.getSignature(), command) as never
+            Signature.parseSignature(command.getSignature(), command)
         )
 
         return this
@@ -171,7 +171,7 @@ export class Musket<A extends Application = Application> {
                 .action(async () => {
                     const instance = new ListCommand(this.app, this.kernel)
                     instance.setInput(this.program.opts(), this.program.args, this.program.registeredArguments, {}, this.program)
-                    await this.handle(instance as never)
+                    await this.handle(instance)
                 })
         } else {
             /**

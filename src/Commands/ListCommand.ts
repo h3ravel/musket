@@ -1,3 +1,4 @@
+import type { Application } from 'src/Contracts/Application'
 import { Command } from '../Core/Command'
 import { Logger } from '@h3ravel/shared'
 import { Option } from 'commander'
@@ -5,7 +6,7 @@ import { Str } from '@h3ravel/support'
 /* eslint-disable no-control-regex */
 import { altLogo } from '../logo'
 
-export class ListCommand extends Command {
+export class ListCommand<A extends Application = Application> extends Command<A> {
 
     /**
      * The name and signature of the console command.

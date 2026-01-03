@@ -178,7 +178,7 @@ export class Signature {
      * @param commandClass 
      * @returns 
      */
-    static parseSignature<A extends Application = Application> (signature: string, commandClass: Command<A>): ParsedCommand {
+    static parseSignature<A extends Application = Application> (signature: string, commandClass: Command<A>): ParsedCommand<A> {
         const lines = signature.split('\n').map(l => l.trim()).filter(l => l.length > 0)
         const isHidden = ['#', '^'].includes(lines[0][0]!) || /:[#^]/.test(lines[0])
         const baseCommand = lines[0].split('{')[0].trim().replace(/[^\w:-]/g, '')

@@ -1,7 +1,8 @@
+import type { Application } from 'src/Contracts/Application'
 import { Command } from '../Core/Command'
 import { Logger } from '@h3ravel/shared'
 
-export class HelpCommand extends Command {
+export class HelpCommand<A extends Application = Application> extends Command<A> {
 
     /**
      * The name and signature of the console command.

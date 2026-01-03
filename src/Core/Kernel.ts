@@ -27,7 +27,7 @@ export class Kernel<A extends Application = Application> {
     /**
      * A list of pre-registered CLI commands
      */
-    private commands = new Set<typeof Command>([])
+    private commands = new Set<typeof Command<A>>([])
 
     /**
      * Packages that should show up up when the -V flag is passed
@@ -37,7 +37,7 @@ export class Kernel<A extends Application = Application> {
     /**
      * The CLI configuration options
      */
-    private config: KernelConfig = {}
+    public config: KernelConfig = {}
 
     constructor(public app: A) { }
 
@@ -120,7 +120,7 @@ export class Kernel<A extends Application = Application> {
      * 
      * @param command 
      */
-    registerCommands (commands: typeof Command[]) {
+    registerCommands (commands: typeof Command<A>[]) {
         commands.forEach(this.commands.add)
 
         return this
@@ -129,7 +129,7 @@ export class Kernel<A extends Application = Application> {
     /**
      * Get all the pre-registered commands
      */
-    getRegisteredCommands (): typeof Command[] {
+    getRegisteredCommands (): typeof Command<A>[] {
         return Array.from(this.commands)
     }
 
