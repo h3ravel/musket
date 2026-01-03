@@ -1,5 +1,6 @@
 import { CommandOption, ParsedCommand } from './Contracts/ICommand'
 
+import type { Application } from './Contracts/Application'
 import { Command } from './Core/Command'
 
 export class Signature {
@@ -177,7 +178,7 @@ export class Signature {
      * @param commandClass 
      * @returns 
      */
-    static parseSignature (signature: string, commandClass: Command): ParsedCommand {
+    static parseSignature<A extends Application = Application> (signature: string, commandClass: Command<A>): ParsedCommand {
         const lines = signature.split('\n').map(l => l.trim()).filter(l => l.length > 0)
         const isHidden = ['#', '^'].includes(lines[0][0]!) || /:[#^]/.test(lines[0])
         const baseCommand = lines[0].split('{')[0].trim().replace(/[^\w:-]/g, '')

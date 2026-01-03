@@ -14,21 +14,21 @@ import { altLogo } from './logo'
 import { glob } from 'glob'
 import path from 'node:path'
 
-export class Musket {
+export class Musket<A extends Application = Application> {
     /**
      * The name of the CLI app we're building
      * 
      * @default musket
      */
     public name: string = 'musket'
-    private config: KernelConfig = {}
-    private commands: ParsedCommand[] = []
+    private config: KernelConfig<A> = {}
+    private commands: ParsedCommand<A>[] = []
     private program: Commander
 
     constructor(
-        private app: Application,
-        private kernel: Kernel,
-        private baseCommands: Command[] = [],
+        private app: A,
+        private kernel: Kernel<A>,
+        private baseCommands: Command<A>[] = [],
         private resolver?: CommandMethodResolver,
         private tsDownConfig: UserConfig = {}
     ) {
@@ -43,10 +43,10 @@ export class Musket {
     }
 
     private loadBaseCommands () {
-        const commands: Command[] = this.baseCommands
+        const commands: Command<A>[] = this.baseCommands
             .concat([
-                new HelpCommand(this.app, this.kernel),
-                new ListCommand(this.app, this.kernel),
+                new HelpCommand(this.app, this.kernel) as never,
+                new ListCommand(this.app, this.kernel) as never,
             ])
 
         commands.forEach(e => this.addCommand(e))
@@ -60,7 +60,7 @@ export class Musket {
      * @param config 
      * @returns 
      */
-    public configure (config: KernelConfig) {
+    public configure (config: KernelConfig<A>) {
         this.config = config
         return this
     }
@@ -81,7 +81,7 @@ export class Musket {
     }
 
     private async loadDiscoveredCommands () {
-        const commands: Command[] = [
+        const commands: Command<A>[] = [
             ...(this.app.registeredCommands ?? []).map(cmd => new cmd(this.app, this.kernel))
         ]
 
@@ -106,9 +106,9 @@ export class Musket {
      * 
      * @param command 
      */
-    addCommand (command: Command) {
+    addCommand (command: Command<A>) {
         this.commands.push(
-            Signature.parseSignature(command.getSignature(), command)
+            Signature.parseSignature(command.getSignature(), command) as never
         )
 
         return this
@@ -119,7 +119,7 @@ export class Musket {
      * 
      * @param command 
      */
-    registerCommands (commands: Command[]) {
+    registerCommands (commands: Command<A>[]) {
         commands.forEach(this.addCommand)
 
         return this
@@ -171,7 +171,7 @@ export class Musket {
                 .action(async () => {
                     const instance = new ListCommand(this.app, this.kernel)
                     instance.setInput(this.program.opts(), this.program.args, this.program.registeredArguments, {}, this.program)
-                    await this.handle(instance)
+                    await this.handle(instance as never)
                 })
         } else {
             /**
@@ -400,7 +400,7 @@ export class Musket {
         }
     }
 
-    private async handle (cmd: Command) {
+    private async handle (cmd: Command<A>) {
         if (this.resolver) {
             return await this.resolver(cmd, 'handle')
         }
@@ -408,21 +408,21 @@ export class Musket {
         await cmd.handle(this.app)
     }
 
-    static async parse<E extends boolean = false> (
-        kernel: Kernel,
-        config: KernelConfig,
+    static async parse<E extends boolean = false, A extends Application = Application> (
+        kernel: Kernel<A>,
+        config: KernelConfig<A>,
         returnExit?: E
     ): Promise<E extends true ? number : Commander>
-    static async parse<E extends boolean = false> (
-        kernel: Kernel,
-        config: KernelConfig,
-        commands: typeof Command[],
+    static async parse<E extends boolean = false, A extends Application = Application> (
+        kernel: Kernel<A>,
+        config: KernelConfig<A>,
+        commands: typeof Command<A>[],
         returnExit?: E
     ): Promise<E extends true ? number : Commander>
-    static async parse (
-        kernel: Kernel,
-        config: KernelConfig = {},
-        extraCommands: typeof Command[] | boolean = [],
+    static async parse<_E extends boolean = false, A extends Application = Application> (
+        kernel: Kernel<A>,
+        config: KernelConfig<A> = {},
+        extraCommands: typeof Command<A>[] | boolean = [],
         returnExit: boolean = false
     ) {
         let exitCode = 0

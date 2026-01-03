@@ -1,5 +1,6 @@
 import { type Command } from '../Core/Command'
 import { type UserConfig } from 'tsdown';
+import type { Application } from './Application';
 
 export type CommandOption = {
     name: string;
@@ -29,8 +30,8 @@ export type CommandOption = {
     nestedOptions?: CommandOption[];
 };
 
-export type ParsedCommand = {
-    commandClass: Command;
+export type ParsedCommand<A extends Application = Application> = {
+    commandClass: Command<A>;
 
     baseCommand: string;
 
@@ -57,7 +58,7 @@ export type PackageMeta = string | { name: string, alias: string, base?: boolean
 
 export type CommandMethodResolver = <X extends Command>(cmd: X, met: any) => Promise<X>
 
-export interface KernelConfig {
+export interface KernelConfig<A extends Application = Application> {
     /**
      * ASCII Art style logo
      */
@@ -106,11 +107,11 @@ export interface KernelConfig {
     /**
      * Commands that should be autoloaded by default
      */
-    baseCommands?: typeof Command[],
+    baseCommands?: typeof Command<A>[],
     /**
      * A command that will be run when the script is run without arguments
      */
-    rootCommand?: typeof Command,
+    rootCommand?: typeof Command<A>,
     /**
      * Paths where musket can search and auto discover commands
      * 
