@@ -134,6 +134,22 @@ export class Kernel<A extends Application = Application> {
     }
 
     /**
+     * Add a path or more to the discovery paths
+     * 
+     * @param path 
+     */
+    registerDiscovereryPath (path: string[]): this {
+        const discoveryPaths = Array.isArray(this.config.discoveryPaths)
+            ? this.config.discoveryPaths
+            : (this.config.discoveryPaths ? [this.config.discoveryPaths] : [])
+
+        path.forEach(e => discoveryPaths.push(e))
+        this.config.discoveryPaths = discoveryPaths
+
+        return this
+    }
+
+    /**
      * Prepares the CLI for execution
      */
     bootstrap (): this {
