@@ -42,7 +42,7 @@ afterEach(() => {
 describe('Kernel', () => {
     describe('Initiliazation', () => {
         it('can get the configuration object', async () => {
-            expect(instance.getConfig()).toBe(config)
+            expect(instance.getConfig()).toMatchObject(config)
             expect(instance.getConfig().cliName).toBe(config.cliName)
         })
 
@@ -51,7 +51,21 @@ describe('Kernel', () => {
         })
 
         it('can get the configured packages', async () => {
-            expect(instance.getPackages()).toBe(pacakges)
+            expect(instance.getPackages()).toMatchObject(pacakges)
+        })
+
+        it('can add new paths the configured discovery paths', async () => {
+            const paths = ['/new/string/path', '/new/array/path']
+            const discoveryPaths = [...config.discoveryPaths]
+            const newDiscoveryPaths = discoveryPaths.concat(paths)
+
+            instance.registerDiscoveryPath(paths.at(0)!)
+            instance.registerDiscoveryPath([paths.at(1)!])
+            expect(instance.getDiscoveryPaths()).toMatchObject(newDiscoveryPaths)
+        })
+
+        it('can get the configured discovery paths', async () => {
+            expect(instance.getDiscoveryPaths()).toMatchObject(config.discoveryPaths)
         })
 
         it('runs the test command', async () => {

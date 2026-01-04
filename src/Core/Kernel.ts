@@ -121,7 +121,7 @@ export class Kernel<A extends Application = Application> {
      * @param command 
      */
     registerCommands (commands: typeof Command<A>[]) {
-        commands.forEach(this.commands.add)
+        commands.forEach(e => this.commands.add(e))
 
         return this
     }
@@ -138,7 +138,8 @@ export class Kernel<A extends Application = Application> {
      * 
      * @param path 
      */
-    registerDiscovereryPath (path: string[]): this {
+    registerDiscoveryPath (path: string | string[]): this {
+        path = Array.isArray(path) ? path : [path]
         const discoveryPaths = Array.isArray(this.config.discoveryPaths)
             ? this.config.discoveryPaths
             : (this.config.discoveryPaths ? [this.config.discoveryPaths] : [])
@@ -147,6 +148,15 @@ export class Kernel<A extends Application = Application> {
         this.config.discoveryPaths = discoveryPaths
 
         return this
+    }
+
+    /**
+     * Get all the registered discovery paths
+     */
+    getDiscoveryPaths (): string[] {
+        return Array.isArray(this.config.discoveryPaths)
+            ? this.config.discoveryPaths
+            : (this.config.discoveryPaths ? [this.config.discoveryPaths] : [])
     }
 
     /**
