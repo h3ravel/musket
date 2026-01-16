@@ -448,7 +448,9 @@ export class Musket<A extends Application = Application> {
             })
 
         if (!config.skipParsing) {
-            await command.parseAsync(process.argv).catch(e => void e)
+            await command
+                .parseAsync(process.argv)
+                .catch(e => config.exceptionHandler?.(e) || void e)
         }
 
         if (cli.app) {

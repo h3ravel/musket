@@ -113,6 +113,10 @@ export interface KernelConfig<A extends Application = Application> {
      */
     rootCommand?: typeof Command<A>,
     /**
+     * A callback function that will recieve and proccess any caught exceptions
+     */
+    exceptionHandler?: (exception: Error) => void
+    /**
      * Paths where musket can search and auto discover commands
      * 
      * 
