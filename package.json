@@ -60,9 +60,6 @@
     "version-patch": "pnpm version patch",
     "postinstall": "pnpm barrel"
   },
-  "peerDependencies": {
-    "@h3ravel/support": "^0.16.1"
-  },
   "devDependencies": {
     "@types/node": "^24.7.2",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
@@ -77,6 +74,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@h3ravel/support": "^0.16.1",
     "@h3ravel/shared": "^0.28.4",
     "chalk": "^5.6.2",
     "commander": "^14.0.1",
