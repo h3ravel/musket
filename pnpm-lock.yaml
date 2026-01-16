@@ -11,9 +11,6 @@ importers:
       '@h3ravel/shared':
         specifier: ^0.28.4
         version: 0.28.4(@types/node@24.7.2)
-      '@h3ravel/support':
-        specifier: ^0.16.1
-        version: 0.16.1
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -323,14 +320,8 @@ packages:
     resolution: {integrity: sha512-sB5uyeq+dwCWyPi31B2gQlVlo+j5brPlWx4yZBrEaRo/nhdDE8Xke1gsGgtiBdaBTxuTkceLVuVt/pclrasb0A==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@h3ravel/contracts@0.28.1':
-    resolution: {integrity: sha512-Ub2+5rvabNjMvcxDkVWfBBucXLpVDqCX8/rl3QQwbDpcNilZfcnzw1aHfSuk5XpNUBw4zmxYJGlQkuNS3St+TQ==}
-
   '@h3ravel/shared@0.28.4':
     resolution: {integrity: sha512-9D+pdJ5UdLRVau4KdISRDikuUeE2NpqY2SWVgfi/SVNc9R7+eyYbRofZRujWO3H/DvVyJuPA7L6IdxWmdZcQyg==}
-
-  '@h3ravel/support@0.16.1':
-    resolution: {integrity: sha512-zXKP3wRhYuvexSOwWOHqehF5ykvQTGf9KzQuiY6sbHgL3PQ0FRC9vTgUB3z1lFfmu2c39XOSpoGQp4c/CBQZ+g==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -1498,10 +1489,6 @@ packages:
     resolution: {integrity: sha512-F9ODfyqML2coTIsQpSkRHnLSZMtkU8Q+mSfcaIyKwy58u+8k5nvAYeiNhsyMARvzNcXJ9QfWVrcPsC9e9rAxtg==}
     engines: {node: 20 || >=22}
 
-  luxon@3.7.2:
-    resolution: {integrity: sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==}
-    engines: {node: '>=12'}
-
   magic-string@0.30.19:
     resolution: {integrity: sha512-2N21sPY9Ws53PZvsEpVtNuSW+ScYbQdp4b9qUaL+9QkHUrGFKo56Lg9Emg5s9V/qrtNBmiR01sYhUOwu3H+VOw==}
 
@@ -2253,12 +2240,6 @@ snapshots:
       '@eslint/core': 0.16.0
       levn: 0.4.1
 
-  '@h3ravel/contracts@0.28.1':
-    dependencies:
-      h3: 2.0.1-rc.5
-    transitivePeerDependencies:
-      - crossws
-
   '@h3ravel/shared@0.28.4(@types/node@24.7.2)':
     dependencies:
       '@inquirer/prompts': 7.9.0(@types/node@24.7.2)
@@ -2270,14 +2251,6 @@ snapshots:
       preferred-pm: 4.1.1
     transitivePeerDependencies:
       - '@types/node'
-      - crossws
-
-  '@h3ravel/support@0.16.1':
-    dependencies:
-      '@h3ravel/contracts': 0.28.1
-      dayjs: 1.11.18
-      luxon: 3.7.2
-    transitivePeerDependencies:
       - crossws
 
   '@humanfs/core@0.19.1': {}
@@ -3406,8 +3379,6 @@ snapshots:
   lru-cache@10.4.3: {}
 
   lru-cache@11.2.2: {}
-
-  luxon@3.7.2: {}
 
   magic-string@0.30.19:
     dependencies:

@@ -3,7 +3,7 @@ import { ChoiceOrSeparatorArray, Choices, Logger, Prompts } from '@h3ravel/share
 
 import { Application } from 'src/Contracts/Application'
 import { Kernel } from './Kernel'
-import { XGeneric } from '@h3ravel/support'
+import { XGeneric } from '../Contracts/Utils'
 
 export class Command<A extends Application = Application> {
     constructor(protected app: A, protected kernel: Kernel<A>) { }

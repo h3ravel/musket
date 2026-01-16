@@ -1,5 +1,4 @@
 import { Argument, Command as Commander, Option } from 'commander'
-import { Arr, Str } from '@h3ravel/support'
 import { CommandMethodResolver, CommandOption, KernelConfig, ParsedCommand } from './Contracts/ICommand'
 import { UserConfig, build } from 'tsdown'
 
@@ -85,7 +84,7 @@ export class Musket<A extends Application = Application> {
             ...(this.app.registeredCommands ?? []).map(cmd => new cmd(this.app, this.kernel))
         ]
 
-        const paths = Arr.wrap(this.config.discoveryPaths)
+        const paths = Array.isArray(this.config.discoveryPaths) ? this.config.discoveryPaths : [this.config.discoveryPaths!]
 
         /**
          * CLI Commands auto registration
@@ -142,10 +141,14 @@ export class Musket<A extends Application = Application> {
          * Get the provided packages versions
          */
         const moduleVersions = this.kernel.modules.map(e => {
-            return Logger.parse([
-                [`${Str.of(e.alias ?? e.name).afterLast('/').ucfirst().replace(['-', '_'], ' ').replace('cli', 'CLI', false)}:`, 'white'],
-                [e.version, 'green']
-            ], ' ', false)
+            const value = String(e.alias ?? e.name)
+                .split('/')
+                .pop()!
+                .replace(/[-_]/g, ' ')
+                .replace(/cli/gi, match => match === 'cli' ? 'CLI' : match)
+                .replace(/^./, c => c.toUpperCase());
+
+            return Logger.parse([[`${value}:`, 'white'], [e.version, 'green']], ' ', false)
         }).join(' | ')
 
         const additional = {

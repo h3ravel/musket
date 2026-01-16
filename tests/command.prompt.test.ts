@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it, MockInstance, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { Command } from "../src/Core/Command";
 import { type Command as Commander } from "commander";
 import { Kernel } from "../src/Core/Kernel";

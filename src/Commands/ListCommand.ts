@@ -2,8 +2,6 @@ import type { Application } from 'src/Contracts/Application'
 import { Command } from '../Core/Command'
 import { Logger } from '@h3ravel/shared'
 import { Option } from 'commander'
-import { Str } from '@h3ravel/support'
-/* eslint-disable no-control-regex */
 import { altLogo } from '../logo'
 
 export class ListCommand<A extends Application = Application> extends Command<A> {
@@ -48,10 +46,14 @@ export class ListCommand<A extends Application = Application> extends Command<A>
 
         /** Output the modules version */
         const version = this.kernel.modules.map(e => {
-            return Logger.log([
-                [`${Str.of(e.alias ?? e.name).afterLast('/').ucfirst().replace(['-', '_'], ' ').replace('cli', 'CLI', false)}:`, 'white'],
-                [e.version, 'green']
-            ], ' ', false)
+            const value = String(e.alias ?? e.name)
+                .split('/')
+                .pop()!
+                .replace(/[-_]/g, ' ')
+                .replace(/cli/gi, match => match === 'cli' ? 'CLI' : match)
+                .replace(/^./, c => c.toUpperCase());
+
+            return Logger.log([[`${value}:`, 'white'], [e.version, 'green']], ' ', false)
         }).join(' | ')
 
         this.newLine()

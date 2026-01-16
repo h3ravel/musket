@@ -4,10 +4,10 @@ import { KernelConfig, PackageMeta } from 'src/Contracts/ICommand'
 import { Application } from 'src/Contracts/Application'
 import { Command } from './Command'
 import { Musket } from '../Musket'
-import { XGeneric } from '@h3ravel/support'
 import { createRequire } from 'module'
 import { mkdir } from 'node:fs/promises'
 import path from 'node:path'
+import { XGeneric } from '../Contracts/Utils'
 
 export class Kernel<A extends Application = Application> {
     /**
