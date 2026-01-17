@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@h3ravel/shared':
-        specifier: ^0.28.4
-        version: 0.28.4(@types/node@24.7.2)
+        specifier: ^0.29.0-alpha.8
+        version: 0.29.0-alpha.8(@types/node@24.7.2)
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -320,8 +320,8 @@ packages:
     resolution: {integrity: sha512-sB5uyeq+dwCWyPi31B2gQlVlo+j5brPlWx4yZBrEaRo/nhdDE8Xke1gsGgtiBdaBTxuTkceLVuVt/pclrasb0A==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@h3ravel/shared@0.28.4':
-    resolution: {integrity: sha512-9D+pdJ5UdLRVau4KdISRDikuUeE2NpqY2SWVgfi/SVNc9R7+eyYbRofZRujWO3H/DvVyJuPA7L6IdxWmdZcQyg==}
+  '@h3ravel/shared@0.29.0-alpha.8':
+    resolution: {integrity: sha512-u9dJzWGYItL7yoWSyES4Dopwc+x7v1Cqf7dsjEVFCcl7PE0GSzWTc3H5Z8UkmdG4vdcbELHFbHJbr7rScPo2ew==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2240,7 +2240,7 @@ snapshots:
       '@eslint/core': 0.16.0
       levn: 0.4.1
 
-  '@h3ravel/shared@0.28.4(@types/node@24.7.2)':
+  '@h3ravel/shared@0.29.0-alpha.8(@types/node@24.7.2)':
     dependencies:
       '@inquirer/prompts': 7.9.0(@types/node@24.7.2)
       chalk: 5.6.2
