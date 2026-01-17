@@ -84,7 +84,9 @@ export class Musket<A extends Application = Application> {
             ...(this.app.registeredCommands ?? []).map(cmd => new cmd(this.app, this.kernel))
         ]
 
-        const paths = Array.isArray(this.config.discoveryPaths) ? this.config.discoveryPaths : [this.config.discoveryPaths!]
+        const paths = (Array.isArray(this.config.discoveryPaths)
+            ? this.config.discoveryPaths
+            : [this.config.discoveryPaths]).filter(e => typeof e === 'string')
 
         /**
          * CLI Commands auto registration
