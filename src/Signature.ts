@@ -145,11 +145,18 @@ export class Signature {
                 }
             }
 
-            // Extract choices from the descriptions
-            const desc = description.match(/^([^:]+?)\s*:\s*\[?([\w\s,]+)\]?$/)
-            if (match) {
-                description = desc?.[1].trim() ?? description
-                choices = desc?.[2].split(',').map(s => s.trim()).filter(Boolean) ?? choices
+            /**
+             * Extract choices from the descriptions.
+             * 
+             * Choices can be in the format: 
+             * [choice1, choice2, choice3]
+             * choice1, choice2, choice3
+             * choices can have dots as well: [opt1.val, opt2.val]
+             */
+            const desc = description.match(/\[([^\]]+)\]/) || description.match(/: ([^:\[\]]+(?:,[^:\[\]]+)*)$/)
+            if (desc) {
+                description = description.replace(desc[0]!, '').trim()
+                choices = desc[1].split(',').map(c => c.trim())
             }
 
             options.push({

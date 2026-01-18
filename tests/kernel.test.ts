@@ -78,5 +78,16 @@ describe('Kernel', () => {
             const code = await instance.run(true)
             expect(typeof code === 'number').toBeTruthy()
         })
+
+        it('command can parse choices', async () => {
+            const program = await instance.run()
+            const test = program.commands.find(c => c.name() === 'test')
+
+            expect(test?.options.map(o => o.argChoices)).toMatchObject([
+                ['opt1', 'opt2', 'opt3'],
+                ['opt1.val', 'opt2', 'opt3'],
+                ['opt1.val', 'opt2.val', 'opt3.val']
+            ])
+        })
     })
 })
