@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@h3ravel/shared':
-        specifier: ^0.27.7
+        specifier: ~0.27.7
         version: 0.27.7(@types/node@24.7.2)
       '@h3ravel/support':
-        specifier: ^0.15.6
-        version: 0.15.6
+        specifier: ~0.15.7
+        version: 0.15.7
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -326,8 +326,8 @@ packages:
   '@h3ravel/shared@0.27.7':
     resolution: {integrity: sha512-vuH/VlpWNoJHvkrvqz6OxObWyMtOwYmz2fDK4HvV9MREGkVEnKjFRUp96Gr/wplVLTAbvKxKaL6QeUZokulw8Q==}
 
-  '@h3ravel/support@0.15.6':
-    resolution: {integrity: sha512-fAZvxgXotHczhznZhg83FrQfucfJ8XQNNO1xtVQQ8Z7mOCTA+MLIfni0oSaHaqpPf1xpgfpVaXlEmdFu1xcGoQ==}
+  '@h3ravel/support@0.15.7':
+    resolution: {integrity: sha512-Vy2DaviSaNqUMAoNK2mXZj5BODmHwcdUNQEY6mY3sQmHr9tepDemizArDp1YnpSVg+VQoY9BBturnZV5/FStUg==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2263,7 +2263,7 @@ snapshots:
       - '@types/node'
       - crossws
 
-  '@h3ravel/support@0.15.6':
+  '@h3ravel/support@0.15.7':
     dependencies:
       dayjs: 1.11.18
       luxon: 3.7.2
