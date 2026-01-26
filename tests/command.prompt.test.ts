@@ -57,7 +57,7 @@ describe('Prompts.Choice', () => {
 
         await program.parseAsync(['node', 'tests/run', 'prompt', 'choice']);
 
-        expect(mock).toHaveBeenCalledWith('What is your name?', ['Legacy', 'Kaylah'], 0)
+        expect(mock).toHaveBeenCalledWith('What is your name?', ['Legacy', 'Kaylah'], 0, undefined)
         expect(await mock.getMockImplementation()()).toBe('Legacy')
     })
 
@@ -67,7 +67,7 @@ describe('Prompts.Choice', () => {
 
         await program.parseAsync(['node', 'tests/run', 'prompt', 'choice', '1']);
 
-        expect(mock).toHaveBeenCalledWith('What is your name?', ['Legacy', 'Kaylah'], 1)
+        expect(mock).toHaveBeenCalledWith('What is your name?', ['Legacy', 'Kaylah'], 1, undefined)
         expect(await mock.getMockImplementation()()).toBe('Kaylah')
     })
 })
