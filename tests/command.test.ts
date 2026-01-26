@@ -85,6 +85,7 @@ describe('Musket', async () => {
     })
 
     it('will not quiet debug messages with verbose active', async () => {
+        // await program.parseAsync(['node', 'tests/run', 'hello', '-h']);//
         await program.parseAsync(['node', 'tests/run', 'hello', '--quiet', '-v', 'vv']);
         expect(console.log).toHaveBeenNthCalledWith(1, chalk.gray('🐛'), 'Debug Info')
         expect(console.log).toHaveBeenCalledTimes(1)

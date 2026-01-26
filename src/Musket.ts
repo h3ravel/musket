@@ -360,9 +360,17 @@ export class Musket<A extends Application = Application> {
 
         if (opt.isFlag) {
             if (parse) {
-                let flags = opt.flags
-                    ?.map(f => (f.length === 1 ? `-${f}` : `--${f.replace(/^-+/, '')}`))
-                    .join(', ') ?? undefined
+                let flags = (opt.flags ?? [])
+                    .map(flag => {
+                        if (flag.length === 1) {
+                            return '-' + flag
+                        } else if (flag.startsWith('--')) {
+                            return flag
+                        }
+
+                        return flag
+                    })
+                    .join(', ') ?? ''
 
                 if (opt.required && !opt.placeholder) {
                     flags += ` <${type}>`

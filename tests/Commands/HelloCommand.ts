@@ -9,7 +9,7 @@ export class HelloCommand extends Command {
      */
     protected signature: string = `hello
         {name=help : The command name}
-        {--out=txt : The output format}
+        {--o|out=txt : The output format}
     `
 
     /**
