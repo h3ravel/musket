@@ -180,5 +180,7 @@ The H3ravel framework is open-sourced software licensed under the [MIT license](
 [d1]: https://img.shields.io/npm/dt/%40h3ravel%2Fmusket?style=flat-square&label=Downloads&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F%40h3ravel%2Fmusket
 [linl]: https://github.com/h3ravel/framework/blob/main/LICENSE
 [lini]: https://img.shields.io/github/license/h3ravel/framework
-[tel]: https://github.com/h3ravel/framework/actions/workflows/test.yml
-[tei]: https://github.com/h3ravel/musket/actions/workflows/test.yml/badge.svg
+[tel]: https://github.com/h3ravel/musket/actions/workflows/tests.yml
+[tei]: https://github.com/h3ravel/musket/actions/workflows/tests.yml/badge.svg
+
+[![tests](https://github.com/h3ravel/musket/actions/workflows/tests.yml/badge.svg)](https://github.com/h3ravel/musket/actions/workflows/tests.yml)
