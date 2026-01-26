@@ -1,6 +1,6 @@
 {
   "name": "@h3ravel/musket",
-  "version": "0.3.15",
+  "version": "0.3.16",
   "description": "Musket CLI is a framework-agnostic CLI framework designed to allow you build artisan-like CLI apps and for use in the H3ravel framework.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -60,7 +60,7 @@
     "version-patch": "pnpm version patch"
   },
   "peerDependencies": {
-    "@h3ravel/support": "~0.15.10"
+    "@h3ravel/support": "~0.15.9"
   },
   "devDependencies": {
     "@types/node": "^24.7.2",
