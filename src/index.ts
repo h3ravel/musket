@@ -1,5 +1,6 @@
 export * from './Contracts/Application'
 export * from './Contracts/ICommand'
+export * from './Contracts/Utils'
 export * from './Core/Command'
 export * from './Core/Kernel'
 export * from './Musket'

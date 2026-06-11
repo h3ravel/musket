@@ -16,6 +16,7 @@ export default defineConfig([
     dts: true,
     clean: true,
     deps: {
+      skipNodeModulesBundle: true,
       neverBundle: [
         'fs',
         'os',
