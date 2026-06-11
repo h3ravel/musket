@@ -1,6 +1,6 @@
 {
   "name": "@h3ravel/musket",
-  "version": "0.8.0-alpha.6",
+  "version": "0.8.0-alpha.7",
   "description": "Musket CLI is a framework-agnostic CLI framework designed to allow you build artisan-like CLI apps and for use in the H3ravel framework.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -50,27 +50,28 @@
     "console"
   ],
   "scripts": {
-    "build": "tsdown --config-loader unconfig",
+    "build": "tsdown --config-loader unrun",
     "lint": "eslint . --ext .ts",
     "barrel": "barrelize >/dev/null",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
     "coverage": "vitest --coverage",
     "cmd": "tsx --experimental-specifier-resolution=node tests/run",
     "release:patch": "pnpm build && pnpm version patch && git add . && git commit -m \"version: bump console package version\" && pnpm publish --tag latest",
     "version-patch": "pnpm version patch"
   },
   "devDependencies": {
-    "@types/node": "^24.7.2",
-    "@typescript-eslint/eslint-plugin": "^8.44.0",
-    "@typescript-eslint/parser": "^8.44.0",
-    "@vitest/coverage-v8": "^3.2.4",
-    "barrelize": "^1.6.4",
-    "eslint": "^9.36.0",
+    "@types/node": "^25.9.3",
+    "@typescript-eslint/eslint-plugin": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.0",
+    "@vitest/coverage-v8": "^4.1.8",
+    "barrelize": "^1.8.1",
+    "eslint": "^10.4.0",
     "husky": "^9.1.7",
-    "tsdown": "^0.16.0",
-    "typescript": "^5.9.2",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.4"
+    "tsdown": "^0.22.2",
+    "typescript": "^6.0.3",
+    "unrun": "^0.3.1",
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "@h3ravel/shared": "^0.29.0-alpha.10",
