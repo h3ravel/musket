@@ -1,4 +1,4 @@
-import { Command } from "../../src/Core/Command"
+import { Command } from '../../src/Core/Command'
 
 export class PleaseCommand extends Command {
 

@@ -51,7 +51,7 @@ export class ListCommand<A extends Application = Application> extends Command<A>
                 .pop()!
                 .replace(/[-_]/g, ' ')
                 .replace(/cli/gi, match => match === 'cli' ? 'CLI' : match)
-                .replace(/^./, c => c.toUpperCase());
+                .replace(/^./, c => c.toUpperCase())
 
             return Logger.log([[`${value}:`, 'white'], [e.version, 'green']], ' ', false)
         }).join(' | ')
@@ -93,6 +93,7 @@ export class ListCommand<A extends Application = Application> extends Command<A>
     public static groupItems (commands: string[], fmtd = false) {
         const grouped = commands.reduce<Record<string, string[]>>((acc, cmd) => {
             /** strip colors before checking prefix */
+            // eslint-disable-next-line no-control-regex
             const clean = cmd.replace(/\x1b\[\d+m/g, '')
             const prefix = clean.includes(':') ? clean.split(':')[0].trim() : '__root__'
             acc[prefix] ??= []

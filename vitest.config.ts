@@ -14,7 +14,7 @@ export default defineConfig({
     watchTriggerPatterns: [
       {
         pattern: /^tests\/(Commands|Xcc)\/(.*)\.(ts|tsx)$/,
-        testsToRun: () => `./tests/command.test.ts`,
+        testsToRun: () => './tests/command.test.ts',
       },
     ],
     coverage: {

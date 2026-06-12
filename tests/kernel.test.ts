@@ -1,10 +1,10 @@
-import { MockInstance, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { MockInstance, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { Command } from "../src/Core/Command";
-import { Kernel } from "../src/Core/Kernel";
-import { TestCommand } from "./Commands/TestCommand";
-import chalk from "chalk";
-import path from "node:path";
+import { Command } from '../src/Core/Command'
+import { Kernel } from '../src/Core/Kernel'
+import { TestCommand } from './Commands/TestCommand'
+import chalk from 'chalk'
+import path from 'node:path'
 
 class App {
     registeredCommands: typeof Command[] = []
@@ -28,7 +28,7 @@ beforeAll(() => {
         .setConfig(config)
         .setPackages(pacakges)
         .registerCommands([TestCommand])
-        .bootstrap();
+        .bootstrap()
 })
 
 beforeEach(() => {
@@ -70,7 +70,7 @@ describe('Kernel', () => {
 
         it('runs the test command', async () => {
             const program = await instance.run()
-            await program.parseAsync(['node', 'tests/run', 'test']);
+            await program.parseAsync(['node', 'tests/run', 'test'])
             expect(console.log).toHaveBeenCalledWith(chalk.blue('ℹ'), 'TEST OK')
         })
 

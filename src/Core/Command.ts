@@ -1,7 +1,7 @@
-import type { Argument, Command as ICommand } from 'commander'
 import { ChoiceOrSeparatorArray, Choices, Logger, Prompts, Spinner } from '@h3ravel/shared'
 
 import { Application } from 'src/Contracts/Application'
+import { Argument, type Command as ICommand } from 'commander'
 import { Kernel } from './Kernel'
 import { XGeneric } from '../Contracts/Utils'
 
@@ -97,7 +97,7 @@ export class Command<A extends Application = Application> {
     }
 
     /**
-     * Set a specific option
+     * Set the value for a specific option
      * 
      * @param key   The option key
      * @param value The option value
@@ -105,6 +105,25 @@ export class Command<A extends Application = Application> {
      */
     setOption (key: string, value: unknown) {
         this.program.setOptionValue(key, value)
+        return this
+    }
+
+    /**
+     * Set the value for a specific argument
+     * 
+     * @param name   The argument name
+     * @param value  The argument value
+     * @returns 
+     */
+    setArgument (name: string, value: string) {
+        this.input.arguments[name] = value
+
+        const index = this.input.arguments
+            ? Object.keys(this.input.arguments).indexOf(name)
+            : -1
+
+        if (index !== -1) this.program.args[index] = value
+
         return this
     }
 
@@ -185,7 +204,7 @@ export class Command<A extends Application = Application> {
      * Load base flags into the command input
      */
     public loadBaseFlags () {
-        let verbose = 0
+        let verbose: number
         if (this.program.getOptionValue('verbose') == 'v') verbose = 2
         else if (this.program.getOptionValue('verbose') == 'vv') verbose = 3
         else verbose = Number(this.program.getOptionValue('verbose') ?? 0)

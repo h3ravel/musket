@@ -153,7 +153,7 @@ export class Signature {
              * choice1, choice2, choice3
              * choices can have dots as well: [opt1.val, opt2.val]
              */
-            const desc = description.match(/\[([^\]]+)\]/) || description.match(/: ([^:\[\]]+(?:,[^:\[\]]+)*)$/)
+            const desc = description.match(/\[([^\]]+)\]/) || description.match(/: ([^:[\]]+(?:,[^:[\]]+)*)$/)
             if (desc) {
                 description = description.replace(desc[0]!, '').trim()
                 choices = desc[1].split(',').map(c => c.trim())

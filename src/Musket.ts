@@ -148,7 +148,7 @@ export class Musket<A extends Application = Application> {
                 .pop()!
                 .replace(/[-_]/g, ' ')
                 .replace(/cli/gi, match => match === 'cli' ? 'CLI' : match)
-                .replace(/^./, c => c.toUpperCase());
+                .replace(/^./, c => c.toUpperCase())
 
             return Logger.parse([[`${value}:`, 'white'], [e.version, 'green']], ' ', false)
         }).join(' | ')

@@ -1,7 +1,7 @@
-import { Command } from "../src/Core/Command"
-import { HelloCommand } from "./Commands/HelloCommand"
-import { Kernel } from "../src/Core/Kernel"
-import path from "node:path"
+import { Command } from '../src/Core/Command'
+import { HelloCommand } from './Commands/HelloCommand'
+import { Kernel } from '../src/Core/Kernel'
+import path from 'node:path'
 
 class App {
     registeredCommands: typeof Command[] = []

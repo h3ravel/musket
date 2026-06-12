@@ -1,9 +1,9 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { Command } from "../src/Core/Command";
-import { type Command as Commander } from "commander";
-import { Kernel } from "../src/Core/Kernel";
-import path from "node:path";
-import { Prompts } from "@h3ravel/shared";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { Command } from '../src/Core/Command'
+import { type Command as Commander } from 'commander'
+import { Kernel } from '../src/Core/Kernel'
+import path from 'node:path'
+import { Prompts } from '@h3ravel/shared'
 
 class App {
     registeredCommands: typeof Command[] = []
@@ -55,7 +55,7 @@ describe('Prompts.Choice', () => {
         const mock = Prompts.choice as any
         mock.mockResolvedValue('Legacy')
 
-        await program.parseAsync(['node', 'tests/run', 'prompt', 'choice']);
+        await program.parseAsync(['node', 'tests/run', 'prompt', 'choice'])
 
         expect(mock).toHaveBeenCalledWith('What is your name?', ['Legacy', 'Kaylah'], 0, undefined)
         expect(await mock.getMockImplementation()()).toBe('Legacy')
@@ -65,7 +65,7 @@ describe('Prompts.Choice', () => {
         const mock = Prompts.choice as any
         mock.mockResolvedValue('Kaylah')
 
-        await program.parseAsync(['node', 'tests/run', 'prompt', 'choice', '1']);
+        await program.parseAsync(['node', 'tests/run', 'prompt', 'choice', '1'])
 
         expect(mock).toHaveBeenCalledWith('What is your name?', ['Legacy', 'Kaylah'], 1, undefined)
         expect(await mock.getMockImplementation()()).toBe('Kaylah')
@@ -77,7 +77,7 @@ describe('Prompts.Confirm', () => {
         const mock = Prompts.confirm as any
         mock.mockResolvedValue('y')
 
-        await program.parseAsync(['node', 'tests/run', 'prompt', 'confirm']);
+        await program.parseAsync(['node', 'tests/run', 'prompt', 'confirm'])
 
         expect(mock).toHaveBeenCalledWith('Are you ready?', false)
         expect(await mock.getMockImplementation()()).toBe('y')
@@ -89,7 +89,7 @@ describe('Prompts.Ask', () => {
         const mock = Prompts.ask as any
         mock.mockResolvedValue('Legacy')
 
-        await program.parseAsync(['node', 'tests/run', 'prompt', 'ask']);
+        await program.parseAsync(['node', 'tests/run', 'prompt', 'ask'])
 
         expect(mock).toHaveBeenCalledWith('What is your name?', undefined)
         expect(await mock.getMockImplementation()()).toBe('Legacy')
@@ -108,7 +108,7 @@ describe('Prompts.Secret', () => {
         const mock = Prompts.secret as any
         mock.mockResolvedValue('hidden')
 
-        await program.parseAsync(['node', 'tests/run', 'prompt', 'secret']);
+        await program.parseAsync(['node', 'tests/run', 'prompt', 'secret'])
         expect(mock).toHaveBeenCalledWith('Enter Password', undefined)
         expect(await mock.getMockImplementation()()).toBe('hidden')
     })
@@ -117,7 +117,7 @@ describe('Prompts.Secret', () => {
         const mock = Prompts.secret as any
         mock.mockResolvedValue('my-secret')
 
-        await program.parseAsync(['node', 'tests/run', 'prompt', 'secret', '*']);
+        await program.parseAsync(['node', 'tests/run', 'prompt', 'secret', '*'])
 
         expect(mock).toHaveBeenCalledWith('Enter Password', '*')
         expect(await mock.getMockImplementation()()).toBe('my-secret')
@@ -129,7 +129,7 @@ describe('Prompts.Anticipate', () => {
         const mock = Prompts.anticipate as any
         mock.mockResolvedValue('Legacy')
 
-        await program.parseAsync(['node', 'tests/run', 'prompt', 'anticipate', 'banana']);
+        await program.parseAsync(['node', 'tests/run', 'prompt', 'anticipate', 'banana'])
 
         expect(mock).toHaveBeenCalledTimes(1)
         expect(mock.mock.calls[0][0]).toBe('Who are you?')

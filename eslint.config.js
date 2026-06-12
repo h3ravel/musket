@@ -1,5 +1,6 @@
 import { defineConfig } from 'eslint/config'
 import { globalIgnores } from 'eslint/config'
+import globals from 'globals'
 import js from '@eslint/js'
 import tseslint from 'typescript-eslint'
 
@@ -7,7 +8,9 @@ export default defineConfig(
   {
     languageOptions: {
       parserOptions: {
-        tsconfigRootDir: process.cwd()
+        // eslint-disable-next-line no-undef
+        tsconfigRootDir: process.cwd(),
+        globals: { ...globals.node },
       },
     },
   },

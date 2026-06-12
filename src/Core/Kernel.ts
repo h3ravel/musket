@@ -163,7 +163,7 @@ export class Kernel<A extends Application = Application> {
      * Prepares the CLI for execution
      */
     bootstrap (): this {
-        let version = this.config.version;
+        let version = this.config.version
         const require = createRequire(import.meta.url)
         this.cwd ??= path.join(process.cwd(), this.basePath)
 
@@ -177,10 +177,10 @@ export class Kernel<A extends Application = Application> {
 
         for (let i = 0; i < this.packages.length; i++) {
             try {
-                const item = this.packages[i];
-                const name = typeof item === 'string' ? item : item.name;
-                const alias = typeof item === 'string' ? item : item.alias;
-                const base = typeof item === 'string' ? false : item.base;
+                const item = this.packages[i]
+                const name = typeof item === 'string' ? item : item.name
+                const alias = typeof item === 'string' ? item : item.alias
+                const base = typeof item === 'string' ? false : item.base
 
                 const modulePath = FileSystem.findModulePkg(name, this.cwd) ?? ''
                 const pkg = require(path.join(modulePath, 'package.json'))
@@ -191,7 +191,7 @@ export class Kernel<A extends Application = Application> {
                 }
                 this.modules.push(pkg)
 
-            } catch (e) {
+            } catch {
                 this.modules.push({ version: 'N/A', name: 'Unknown' })
             }
         }

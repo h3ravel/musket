@@ -1,6 +1,6 @@
 import { type Command } from '../Core/Command'
-import { type UserConfig } from 'tsdown';
-import type { Application } from './Application';
+import { type UserConfig } from 'tsdown'
+import type { Application } from './Application'
 
 export type CommandOption = {
     name: string;
