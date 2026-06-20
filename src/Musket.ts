@@ -7,7 +7,7 @@ import { Command } from './Core/Command'
 import { HelpCommand } from './Commands/HelpCommand'
 import { Kernel } from './Core/Kernel'
 import { ListCommand } from './Commands/ListCommand'
-import { Logger } from '@h3ravel/shared'
+import { Logger, importFile } from '@h3ravel/shared'
 import { Signature } from './Signature'
 import { altLogo } from './logo'
 import { glob } from 'glob'
@@ -92,14 +92,92 @@ export class Musket<A extends Application = Application> {
          * CLI Commands auto registration
          */
         for await (const pth of glob.stream(paths)) {
-            const name = path.basename(pth).replaceAll(/\.ts|\.js|\.mjs/g, '')
+            const file = pth.toString()
+            const name = path.basename(file).replace(/\.(c|m)?(t|j)s$/, '')
+
             try {
-                const cmdClass = (await import(pth))[name]
-                commands.push(new cmdClass(this.app, this.kernel))
-            } catch { /** */ }
+                const mod = await this.importCommandModule(file)
+                const CommandClass = this.resolveCommandClass(mod, name)
+
+                if (!CommandClass) {
+                    this.warnDiscovery(`No command class export found in ${file}`)
+                    continue
+                }
+
+                commands.push(new CommandClass(this.app, this.kernel))
+            } catch (error) {
+                /**
+                 * Never swallow load failures silently — a command that throws on
+                 * import would otherwise just vanish from the CLI with no clue why.
+                 */
+                this.warnDiscovery(`Failed to load command ${file}: ${(error as Error)?.message ?? String(error)}`)
+            }
         }
 
         commands.forEach(e => this.addCommand(e))
+    }
+
+    /**
+     * Import a discovered command module with full TypeScript support.
+     *
+     * Native `import()` is attempted first: it loads built `.js`, and works
+     * verbatim in TypeScript-aware runtimes/test loaders (vitest, tsx, Node with
+     * type stripping) — which also keeps their module mocking and single module
+     * registry intact. When native import can't load a TypeScript source (plain
+     * Node throwing on a `.ts`/`.mts`/`.cts` file), it is transpiled on the fly
+     * via jiti (`@h3ravel/shared`'s `importFile`) so commands are discovered
+     * without a prior build. Consumers can bypass all of this with
+     * {@link KernelConfig.importModule}.
+     *
+     * @param file  Absolute or cwd-relative path to the command module.
+     */
+    private async importCommandModule (file: string): Promise<Record<string, unknown>> {
+        if (this.config.importModule) {
+            return await this.config.importModule(file)
+        }
+
+        try {
+            return await import(file)
+        } catch (error) {
+            if (/\.(c|m)?ts$/.test(file)) {
+                return await importFile<Record<string, unknown>>(file)
+            }
+
+            throw error
+        }
+    }
+
+    /**
+     * Resolve the command class out of an imported module. Prefers the export
+     * named after the file, then a `default` export, then the first exported
+     * constructor — because a file's name and its exported class name do not
+     * always match.
+     *
+     * @param mod   The imported module namespace.
+     * @param name  The file name without extension.
+     */
+    private resolveCommandClass (
+        mod: Record<string, unknown>,
+        name: string
+    ): (new (...args: any[]) => Command<A>) | undefined {
+        const named = mod[name]
+
+        if (typeof named === 'function') return named as never
+        if (typeof mod.default === 'function') return mod.default as never
+
+        return Object.values(mod).find(value => typeof value === 'function') as never
+    }
+
+    /**
+     * Emit a non-fatal command-discovery warning.
+     *
+     * @param message
+     */
+    private warnDiscovery (message: string) {
+        Logger.log([
+            ['[musket]', 'yellow'],
+            [message, 'white']
+        ], ' ')
     }
 
     /**

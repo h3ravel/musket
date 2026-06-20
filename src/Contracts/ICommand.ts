@@ -118,11 +118,22 @@ export interface KernelConfig<A extends Application = Application> {
     exceptionHandler?: (exception: Error) => void
     /**
      * Paths where musket can search and auto discover commands
-     * 
-     * 
+     *
+     *
      * @example 'Console/Commands/*.js'
      * @example 'dist/app/Console/Commands/*.js'
      * @example ['Console/Commands/*.js', 'src/app/Commands/*.js']
      */
     discoveryPaths?: string | string[]
+    /**
+     * Optional override for how discovered command modules are imported.
+     * Receives the matched file path and must resolve the module namespace.
+     *
+     * When omitted, musket loads TypeScript sources via jiti (`@h3ravel/shared`'s
+     * `importFile`) and JavaScript natively, so `.ts` commands are discovered
+     * without a prior build.
+     *
+     * @param filePath  The matched command file path.
+     */
+    importModule?: (filePath: string) => Promise<Record<string, unknown>>
 }
