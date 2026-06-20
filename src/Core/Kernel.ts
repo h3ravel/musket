@@ -1,5 +1,5 @@
 import { FileSystem, Logger } from '@h3ravel/shared'
-import { KernelConfig, PackageMeta } from 'src/Contracts/ICommand'
+import { KernelConfig, ModuleMeta, PackageMeta } from 'src/Contracts/ICommand'
 
 import { Application } from 'src/Contracts/Application'
 import { Command } from './Command'
@@ -17,7 +17,7 @@ export class Kernel<A extends Application = Application> {
 
     public output = typeof Logger
 
-    public modules: XGeneric<{ version: string, name: string, base?: boolean, alias?: string }>[] = []
+    public modules: XGeneric<ModuleMeta>[] = []
 
     /**
      * The base path for the CLI app
@@ -179,14 +179,21 @@ export class Kernel<A extends Application = Application> {
             try {
                 const item = this.packages[i]
                 const name = typeof item === 'string' ? item : item.name
-                const alias = typeof item === 'string' ? item : item.alias
+                const alias = typeof item === 'string' ? item : (item.alias ?? item.name)
                 const base = typeof item === 'string' ? false : item.base
+                const label = typeof item === 'string' ? undefined : item.label
+                const versionOverride = typeof item === 'string' ? undefined : item.version
 
                 const modulePath = FileSystem.findModulePkg(name, this.cwd) ?? ''
                 const pkg = require(path.join(modulePath, 'package.json'))
                 pkg.alias = alias
                 pkg.base = base
-                if (base === true && version) {
+                if (label) pkg.label = label
+
+                /** A per-package version wins, then the base-package override. */
+                if (versionOverride) {
+                    pkg.version = versionOverride
+                } else if (base === true && version) {
                     pkg.version = version
                 }
                 this.modules.push(pkg)
@@ -209,5 +216,60 @@ export class Kernel<A extends Application = Application> {
         }
 
         return this
+    }
+
+    /**
+     * Format a module's display label: strip the package scope, turn `-`/`_`
+     * into spaces, normalise "cli" casing and capitalise. A module's explicit
+     * `label` short-circuits all of this.
+     *
+     * @param module
+     */
+    formatModuleLabel (module: ModuleMeta): string {
+        if (module.label) return module.label
+
+        return String(module.alias ?? module.name)
+            .split('/')
+            .pop()!
+            .replace(/[-_]/g, ' ')
+            .replace(/cli/gi, match => match === 'cli' ? 'CLI' : match)
+            .replace(/^./, c => c.toUpperCase())
+    }
+
+    /**
+     * Render a single module as a colored `Label: version` segment, honoring
+     * {@link KernelConfig.versionColors}.
+     *
+     * @param module
+     */
+    renderModuleVersion (module: ModuleMeta): string {
+        const colors = this.config.versionColors ?? {}
+
+        return Logger.parse([
+            [`${this.formatModuleLabel(module)}:`, colors.label ?? 'white'],
+            [String(module.version), colors.version ?? 'green'],
+        ], ' ', false)
+    }
+
+    /**
+     * Build the full version line shown for `--version` and atop the command
+     * list. A single source of truth for both render sites.
+     *
+     * Honors {@link KernelConfig.versionFormatter} for complete control,
+     * otherwise joins each module with {@link KernelConfig.versionSeparator}.
+     */
+    getVersionString (): string {
+        const modules = this.modules as ModuleMeta[]
+        const separator = this.config.versionSeparator ?? ' | '
+
+        if (this.config.versionFormatter) {
+            return this.config.versionFormatter(modules, {
+                format: module => this.renderModuleVersion(module),
+                label: module => this.formatModuleLabel(module),
+                separator,
+            })
+        }
+
+        return modules.map(module => this.renderModuleVersion(module)).join(separator)
     }
 }

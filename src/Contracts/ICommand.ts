@@ -1,4 +1,5 @@
 import { type Command } from '../Core/Command'
+import { type LoggerChalk } from '@h3ravel/shared'
 import { type UserConfig } from 'tsdown'
 import type { Application } from './Application'
 
@@ -54,7 +55,52 @@ export type ParsedCommand<A extends Application = Application> = {
     options?: CommandOption[];
 };
 
-export type PackageMeta = string | { name: string, alias: string, base?: boolean }
+export type PackageMeta = string | {
+    /**
+     * The package name to resolve version info from (its `package.json`).
+     */
+    name: string,
+    /**
+     * Display alias; defaults to `name`. Still passes through label formatting.
+     */
+    alias?: string,
+    /**
+     * Mark as the base package whose version `KernelConfig.version` overrides.
+     */
+    base?: boolean,
+    /**
+     * Exact display label, bypassing the default name formatting entirely.
+     */
+    label?: string,
+    /**
+     * Hardcoded version string, bypassing `package.json` resolution.
+     */
+    version?: string,
+}
+
+/**
+ * Resolved metadata for a single module shown in the CLI version line.
+ */
+export type ModuleMeta = {
+    name: string
+    version: string
+    alias?: string
+    label?: string
+    base?: boolean
+}
+
+/**
+ * Helpers handed to {@link KernelConfig.versionFormatter} so a custom renderer
+ * can reuse the default per-module formatting while controlling the layout.
+ */
+export type VersionRenderHelpers = {
+    /** Default per-module renderer: the colored `Label: version` segment. */
+    format: (module: ModuleMeta) => string
+    /** Default label formatter (scope-stripped, spaced, capitalized). */
+    label: (module: ModuleMeta) => string
+    /** The separator that would be used between modules. */
+    separator: string
+}
 
 export type CommandMethodResolver = <X extends Command>(cmd: X, met: any) => Promise<X>
 
@@ -71,10 +117,46 @@ export interface KernelConfig<A extends Application = Application> {
     name?: string
     /**
      * The version of the CLI app we're running (if provided, this will overwrite the value of resolved version from packages config marked as base)
-     * 
+     *
      * @default musket
      */
     version?: string
+    /**
+     * Separator rendered between modules in the version line.
+     *
+     * @default ' | '
+     */
+    versionSeparator?: string
+    /**
+     * Colors used by the default version renderer. Ignored when
+     * {@link versionFormatter} is supplied.
+     */
+    versionColors?: {
+        /**
+         * Color of each module's label.
+         *
+         * @default 'white'
+         */
+        label?: LoggerChalk
+        /**
+         * Color of each module's version.
+         *
+         * @default 'green'
+         */
+        version?: LoggerChalk
+    }
+    /**
+     * Fully override how the version line is rendered. Receives the resolved
+     * modules plus helpers (default per-module formatter, label formatter and
+     * separator) and must return the final string shown for `--version` and
+     * atop the command list. When omitted, modules are joined with
+     * {@link versionSeparator} using the default colored `Label: version`
+     * layout.
+     *
+     * @param modules  The resolved module metadata.
+     * @param helpers  Default formatters so layout can be customized cheaply.
+     */
+    versionFormatter?: (modules: ModuleMeta[], helpers: VersionRenderHelpers) => string
     /**
      * Don't parse the command, usefull for testing or manual control
      */

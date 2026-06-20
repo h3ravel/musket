@@ -44,17 +44,8 @@ export class ListCommand<A extends Application = Application> extends Command<A>
 
         const list = ListCommand.groupItems(commands)
 
-        /** Output the modules version */
-        const version = this.kernel.modules.map(e => {
-            const value = String(e.alias ?? e.name)
-                .split('/')
-                .pop()!
-                .replace(/[-_]/g, ' ')
-                .replace(/cli/gi, match => match === 'cli' ? 'CLI' : match)
-                .replace(/^./, c => c.toUpperCase())
-
-            return Logger.log([[`${value}:`, 'white'], [e.version, 'green']], ' ', false)
-        }).join(' | ')
+        /** Output the modules version (shared renderer, overridable via config) */
+        const version = this.kernel.getVersionString()
 
         this.newLine()
 

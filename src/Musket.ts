@@ -217,19 +217,11 @@ export class Musket<A extends Application = Application> {
             await this.rebuild('help')
         }
 
-        /** 
-         * Get the provided packages versions
+        /**
+         * Render the provided packages versions (single source of truth shared
+         * with ListCommand, fully overridable via KernelConfig).
          */
-        const moduleVersions = this.kernel.modules.map(e => {
-            const value = String(e.alias ?? e.name)
-                .split('/')
-                .pop()!
-                .replace(/[-_]/g, ' ')
-                .replace(/cli/gi, match => match === 'cli' ? 'CLI' : match)
-                .replace(/^./, c => c.toUpperCase())
-
-            return Logger.parse([[`${value}:`, 'white'], [e.version, 'green']], ' ', false)
-        }).join(' | ')
+        const moduleVersions = this.kernel.getVersionString()
 
         const additional = {
             quiet: ['-q, --quiet', 'Do not output any message except errors and warnings'],
