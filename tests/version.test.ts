@@ -4,6 +4,7 @@ import { Command } from '../src/Core/Command'
 import { Kernel } from '../src/Core/Kernel'
 import type { KernelConfig } from '../src/Contracts/ICommand'
 import { Logger } from '@h3ravel/shared'
+import { version } from '../package.json'
 
 class App {
     registeredCommands: typeof Command[] = []
@@ -26,13 +27,13 @@ describe('Version rendering', () => {
     it('renders the default `Label: version` layout joined with " | "', () => {
         const line = versionLine({ name: 'MyCLI' })
 
-        expect(line).toBe('MyCLI: 2.0.0 | Musket CLI: 9.9.9')
+        expect(line).toBe(`MyCLI: ${version} | Musket CLI: 9.9.9`)
     })
 
     it('honors a custom versionSeparator', () => {
         const line = versionLine({ name: 'MyCLI', versionSeparator: '  •  ' })
 
-        expect(line).toBe('MyCLI: 2.0.0  •  Musket CLI: 9.9.9')
+        expect(line).toBe(`MyCLI: ${version}  •  Musket CLI: 9.9.9`)
     })
 
     it('applies per-package label and version overrides', () => {
@@ -51,7 +52,7 @@ describe('Version rendering', () => {
                 modules.map(m => `${helpers.label(m)}@${m.version}`).join(' / '),
         })
 
-        expect(line).toBe('MyCLI@2.0.0 / Musket CLI@9.9.9')
+        expect(line).toBe(`MyCLI@${version} / Musket CLI@9.9.9`)
     })
 
     it('exposes default formatter + separator helpers to versionFormatter', () => {
@@ -61,7 +62,7 @@ describe('Version rendering', () => {
                 `[${modules.map(helpers.format).join(helpers.separator)}]`,
         })
 
-        expect(line).toBe('[MyCLI: 2.0.0 | Musket CLI: 9.9.9]')
+        expect(line).toBe(`[MyCLI: ${version} | Musket CLI: 9.9.9]`)
     })
 
     it('passes configured versionColors through to the renderer', () => {
@@ -71,9 +72,9 @@ describe('Version rendering', () => {
 
         // Text is preserved (color support varies by environment), and the
         // configured colors reach the underlying Logger.parse call.
-        expect(line).toBe('MyCLI: 2.0.0 | Musket CLI: 9.9.9')
+        expect(line).toBe(`MyCLI: ${version} | Musket CLI: 9.9.9`)
         expect(parse).toHaveBeenCalledWith(
-            [['MyCLI:', 'cyan'], ['2.0.0', 'magenta']],
+            [['MyCLI:', 'cyan'], [`${version}`, 'magenta']],
             ' ',
             false,
         )

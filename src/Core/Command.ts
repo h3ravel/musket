@@ -3,6 +3,8 @@ import { ChoiceOrSeparatorArray, Choices, Logger, Prompts, Spinner } from '@h3ra
 import { Application } from 'src/Contracts/Application'
 import { Argument, type Command as ICommand } from 'commander'
 import { Kernel } from './Kernel'
+import { ParsedCommand } from '../Contracts/ICommand'
+import { SignatureBuilder } from '../SignatureBuilder'
 import { XGeneric } from '../Contracts/Utils'
 
 export class Command<A extends Application = Application> {
@@ -35,6 +37,12 @@ export class Command<A extends Application = Application> {
      * @var string
      */
     protected description?: string
+
+    /**
+     * Memoized result of {@link resolveBuilder}. `undefined` means "not yet
+     * resolved"; `null` means "resolved, no builder in use".
+     */
+    private resolvedBuilder?: SignatureBuilder | null
 
     /**
      * The console command input.
@@ -139,21 +147,91 @@ export class Command<A extends Application = Application> {
     }
 
     /**
-     * Get the command signature
-     * 
-     * @returns 
+     * Define the command signature programmatically.
+     *
+     * Override this instead of (or in addition to) the {@link signature} string
+     * to describe the command, its arguments and its options through the fluent
+     * {@link SignatureBuilder} — no string DSL required. When the `signature`
+     * string is set it always takes precedence and this method is ignored.
+     *
+     * ```ts
+     * buildSignature (sig: SignatureBuilder) {
+     *   return sig
+     *     .command('queue:work')
+     *     .describe('Process jobs on the queue')
+     *     .argument('connection', { required: false })
+     *     .option('queue', { short: 'Q', description: 'The queue to process' })
+     *     .option('once', { description: 'Process a single job and exit' })
+     * }
+     * ```
+     *
+     * @param _builder  A fresh builder to configure.
      */
-    getSignature () {
-        return this.signature
+    protected buildSignature (_builder: SignatureBuilder): SignatureBuilder | void {
+        /** Override to use. */
+    }
+
+    /**
+     * Resolve (and memoize) the signature builder for this command, or `null`
+     * when the command uses the string {@link signature} (which always wins) or
+     * does not implement {@link buildSignature}.
+     */
+    private resolveBuilder (): SignatureBuilder | null {
+        if (this.resolvedBuilder !== undefined) {
+            return this.resolvedBuilder
+        }
+
+        if (this.signature) {
+            return (this.resolvedBuilder = null)
+        }
+
+        const builder = new SignatureBuilder()
+        const result = this.buildSignature(builder)
+        const resolved = result instanceof SignatureBuilder ? result : builder
+
+        return (this.resolvedBuilder = resolved.isEmpty() ? null : resolved)
+    }
+
+    /**
+     * Get the command signature. Returns the string {@link signature} when set,
+     * otherwise reconstructs it from {@link buildSignature}.
+     *
+     * @returns
+     */
+    getSignature (): string {
+        if (this.signature) {
+            return this.signature
+        }
+
+        return this.resolveBuilder()?.toString() ?? this.signature
+    }
+
+    /**
+     * The structured, lossless parsed command when {@link buildSignature} is used
+     * for a non-namespace command; `undefined` otherwise (callers then fall back
+     * to parsing {@link getSignature}). This avoids a lossy string round-trip.
+     */
+    toParsedSignature (): ParsedCommand<A> | undefined {
+        const builder = this.resolveBuilder()
+
+        if (!builder || builder.isNamespace()) {
+            return undefined
+        }
+
+        return builder.toParsed(this)
     }
 
     /**
      * Get the command description
-     * 
-     * @returns 
+     *
+     * @returns
      */
     getDescription () {
-        return this.description
+        if (this.description) {
+            return this.description
+        }
+
+        return this.resolveBuilder()?.getDescription() ?? this.description
     }
 
     /**

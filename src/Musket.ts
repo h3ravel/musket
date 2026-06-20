@@ -22,6 +22,13 @@ export class Musket<A extends Application = Application> {
     public name: string = 'musket'
     private config: KernelConfig<A> = {}
     private commands: ParsedCommand<A>[] = []
+    /**
+     * Keys (baseCommand, namespace-aware) of commands already registered, so the
+     * same command surfacing from more than one source — e.g. discovered both as
+     * built `dist/*.js` and as `src/*.ts` via the jiti loader — is only added
+     * once. The first registration wins (base commands before discovered ones).
+     */
+    private registeredKeys = new Set<string>()
     private program: Commander
 
     constructor(
@@ -162,10 +169,29 @@ export class Musket<A extends Application = Application> {
     ): (new (...args: any[]) => Command<A>) | undefined {
         const named = mod[name]
 
-        if (typeof named === 'function') return named as never
-        if (typeof mod.default === 'function') return mod.default as never
+        if (this.isCommandClass(named)) return named
+        if (this.isCommandClass(mod.default)) return mod.default
 
-        return Object.values(mod).find(value => typeof value === 'function') as never
+        return Object.values(mod).find(value => this.isCommandClass(value))
+    }
+
+    /**
+     * Whether a value is a Command class (constructor), as opposed to any other
+     * exported function/class.
+     *
+     * The check is structural — it looks for `getSignature` on the prototype
+     * rather than using `instanceof Command` — so it stays correct when the
+     * discovered command extends a Command from a different copy/version of
+     * musket. Crucially, it rejects non-command exports such as the shared
+     * bundler chunks tools like tsdown can emit alongside built commands (e.g. a
+     * `Rebuilder` helper), which would otherwise be `new`-ed and then crash when
+     * `getSignature()` is called on them.
+     *
+     * @param value  The candidate export.
+     */
+    private isCommandClass (value: unknown): value is (new (...args: any[]) => Command<A>) {
+        return typeof value === 'function'
+            && typeof (value as { prototype?: { getSignature?: unknown } }).prototype?.getSignature === 'function'
     }
 
     /**
@@ -181,25 +207,68 @@ export class Musket<A extends Application = Application> {
     }
 
     /**
-     * Push a new command into the commands stack
-     * 
-     * @param command 
+     * Push a new command into the commands stack.
+     *
+     * Resolution prefers a command's structured signature (built via
+     * {@link Command.buildSignature}) and falls back to parsing its signature
+     * string. Commands that expose no usable signature are skipped with a warning
+     * rather than crashing the CLI, and a command whose key was already
+     * registered is ignored (de-duplication — see {@link registeredKeys}).
+     *
+     * @param command
      */
     addCommand (command: Command<A>) {
-        this.commands.push(
-            Signature.parseSignature(command.getSignature(), command)
-        )
+        if (!command || typeof command.getSignature !== 'function') {
+            this.warnDiscovery(`Skipping ${this.describeCommand(command)}: not a valid command (no getSignature()).`)
+
+            return this
+        }
+
+        let parsed: ParsedCommand<A> | undefined
+
+        try {
+            parsed = command.toParsedSignature?.()
+                ?? Signature.parseSignature(command.getSignature(), command)
+        } catch (error) {
+            this.warnDiscovery(`Skipping ${this.describeCommand(command)}: ${(error as Error)?.message ?? String(error)}`)
+
+            return this
+        }
+
+        if (!parsed || !parsed.baseCommand) {
+            this.warnDiscovery(`Skipping ${this.describeCommand(command)}: empty or unparsable signature.`)
+
+            return this
+        }
+
+        const key = parsed.isNamespaceCommand ? `${parsed.baseCommand}:` : parsed.baseCommand
+
+        if (this.registeredKeys.has(key)) {
+            return this
+        }
+
+        this.registeredKeys.add(key)
+        this.commands.push(parsed)
 
         return this
     }
 
     /**
+     * A best-effort human label for a command, for diagnostics.
+     *
+     * @param command
+     */
+    private describeCommand (command: unknown): string {
+        return (command as { constructor?: { name?: string } })?.constructor?.name ?? 'command'
+    }
+
+    /**
      * Push a list of new commands to commands stack
-     * 
-     * @param command 
+     *
+     * @param command
      */
     registerCommands (commands: Command<A>[]) {
-        commands.forEach(this.addCommand)
+        commands.forEach(e => this.addCommand(e))
 
         return this
     }
@@ -253,7 +322,8 @@ export class Musket<A extends Application = Application> {
              * Load the root command here
              */
             const root = new this.config.rootCommand(this.app, this.kernel)
-            const sign = Signature.parseSignature(root.getSignature(), root)
+            const sign = root.toParsedSignature?.()
+                ?? Signature.parseSignature(root.getSignature(), root)
             const cmd = this.program
                 .name(sign.baseCommand)
                 .description(sign.description ?? sign.baseCommand)

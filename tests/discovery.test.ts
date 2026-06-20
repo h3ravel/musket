@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { Command } from '../src/Core/Command'
+import { DupCommand } from './DiscoveryFixtures/Dup'
 import { Kernel } from '../src/Core/Kernel'
 import path from 'node:path'
 
@@ -73,5 +74,29 @@ describe('Command discovery', () => {
         expect(logSpy).toHaveBeenCalledWith(
             expect.stringContaining('Failed to load command'),
         )
+    })
+
+    it('ignores non-command exports (e.g. bundler chunks) instead of crashing', async () => {
+        // Chunk.ts exports a `Rebuilder` class with no getSignature(); discovery
+        // must skip it and keep the CLI alive rather than `new`-ing it and
+        // crashing when getSignature() is later called.
+        const names = await registeredNames({ discoveryPaths: [fixtures('Chunk.ts')] })
+
+        expect(names).toContain('list')
+        expect(names).not.toContain('rebuilder')
+        expect(logSpy).toHaveBeenCalledWith(
+            expect.stringContaining('No command class export found'),
+        )
+    })
+
+    it('registers a command only once when it surfaces from multiple sources', async () => {
+        // Registered as a base command AND discovered from disk — the same
+        // command from two sources (mirrors dist/*.js + src/*.ts) must dedupe.
+        const names = await registeredNames({
+            baseCommands: [DupCommand],
+            discoveryPaths: [fixtures('Dup.ts')],
+        })
+
+        expect(names.filter(name => name === 'disc:dup')).toHaveLength(1)
     })
 })
