@@ -59,14 +59,14 @@ export class Command<A extends Application = Application> {
      * 
      * @param _args The command arguments
      */
-    public async handle (..._args: any[]): Promise<void> { }
+    public async handle(..._args: any[]): Promise<void> { }
 
     /**
      * Set the application instance
      * 
      * @param app The application instance
      */
-    setApplication (app: A) {
+    setApplication(app: A) {
         this.app = app
     }
 
@@ -80,7 +80,7 @@ export class Command<A extends Application = Application> {
      * @param program    The underlying commander program
      * @returns 
      */
-    setInput (
+    setInput(
         options: XGeneric,
         args: string[],
         regArgs: readonly Argument[],
@@ -111,7 +111,7 @@ export class Command<A extends Application = Application> {
      * @param value The option value
      * @returns 
      */
-    setOption (key: string, value: unknown) {
+    setOption(key: string, value: unknown) {
         this.program.setOptionValue(key, value)
         return this
     }
@@ -123,14 +123,14 @@ export class Command<A extends Application = Application> {
      * @param value  The argument value
      * @returns 
      */
-    setArgument (name: string, value: string) {
+    setArgument(name: string, value: string) {
         this.input.arguments[name] = value
 
         const index = this.input.arguments
             ? Object.keys(this.input.arguments).indexOf(name)
             : -1
 
-        if (index !== -1) this.program.args[index] = value
+        if (index !== -1 && this.program?.args) this.program.args[index] = value
 
         return this
     }
@@ -141,7 +141,7 @@ export class Command<A extends Application = Application> {
      * @param program The underlying commander program
      * @returns 
      */
-    setProgram (program: ICommand) {
+    setProgram(program: ICommand) {
         this.program = program
         return this
     }
@@ -167,7 +167,7 @@ export class Command<A extends Application = Application> {
      *
      * @param _builder  A fresh builder to configure.
      */
-    protected buildSignature (_builder: SignatureBuilder): SignatureBuilder | void {
+    protected buildSignature(_builder: SignatureBuilder): SignatureBuilder | void {
         /** Override to use. */
     }
 
@@ -176,7 +176,7 @@ export class Command<A extends Application = Application> {
      * when the command uses the string {@link signature} (which always wins) or
      * does not implement {@link buildSignature}.
      */
-    private resolveBuilder (): SignatureBuilder | null {
+    private resolveBuilder(): SignatureBuilder | null {
         if (this.resolvedBuilder !== undefined) {
             return this.resolvedBuilder
         }
@@ -198,7 +198,7 @@ export class Command<A extends Application = Application> {
      *
      * @returns
      */
-    getSignature (): string {
+    getSignature(): string {
         if (this.signature) {
             return this.signature
         }
@@ -211,7 +211,7 @@ export class Command<A extends Application = Application> {
      * for a non-namespace command; `undefined` otherwise (callers then fall back
      * to parsing {@link getSignature}). This avoids a lossy string round-trip.
      */
-    toParsedSignature (): ParsedCommand<A> | undefined {
+    toParsedSignature(): ParsedCommand<A> | undefined {
         const builder = this.resolveBuilder()
 
         if (!builder || builder.isNamespace()) {
@@ -226,7 +226,7 @@ export class Command<A extends Application = Application> {
      *
      * @returns
      */
-    getDescription () {
+    getDescription() {
         if (this.description) {
             return this.description
         }
@@ -241,7 +241,7 @@ export class Command<A extends Application = Application> {
      * @param defaultValue The default value
      * @returns 
      */
-    option (key: string, defaultValue?: any) {
+    option(key: string, defaultValue?: any) {
         const option = this.input.options[key] ?? defaultValue
         return option === 'null' || option === 'undefined' ? undefined : option
     }
@@ -252,7 +252,7 @@ export class Command<A extends Application = Application> {
      * @param key The option key
      * @returns 
      */
-    options (key?: string) {
+    options(key?: string) {
         if (key) {
             return this.input.options[key]
         }
@@ -266,7 +266,7 @@ export class Command<A extends Application = Application> {
      * @param defaultValue The default value
      * @returns 
      */
-    argument (key: string, defaultValue?: any) {
+    argument(key: string, defaultValue?: any) {
         return this.input.arguments[key] ?? defaultValue
     }
 
@@ -274,14 +274,14 @@ export class Command<A extends Application = Application> {
      * Get all arguments
      * @returns 
      */
-    arguments () {
+    arguments() {
         return this.input.arguments
     }
 
     /**
      * Load base flags into the command input
      */
-    public loadBaseFlags () {
+    public loadBaseFlags() {
         let verbose: number
         if (this.program.getOptionValue('verbose') == 'v') verbose = 2
         else if (this.program.getOptionValue('verbose') == 'vv') verbose = 3
@@ -298,7 +298,7 @@ export class Command<A extends Application = Application> {
      * 
      * @returns 
      */
-    isQuiet () {
+    isQuiet() {
         return this.option('quiet')
     }
 
@@ -307,7 +307,7 @@ export class Command<A extends Application = Application> {
      * 
      * @returns 
      */
-    isSilent () {
+    isSilent() {
         return this.option('silent')
     }
 
@@ -316,7 +316,7 @@ export class Command<A extends Application = Application> {
      * 
      * @returns 
      */
-    isNonInteractive () {
+    isNonInteractive() {
         return this.option('interaction') === false
     }
 
@@ -325,7 +325,7 @@ export class Command<A extends Application = Application> {
      * 
      * @returns 
      */
-    getVerbosity () {
+    getVerbosity() {
         return Number(this.option('verbose'))
     }
 
@@ -335,7 +335,7 @@ export class Command<A extends Application = Application> {
      * @param message The message to log
      * @returns 
      */
-    info (message: string) {
+    info(message: string) {
         Logger.info(message)
         return this
     }
@@ -346,7 +346,7 @@ export class Command<A extends Application = Application> {
      * @param message The message to log
      * @returns 
      */
-    warn (message: string) {
+    warn(message: string) {
         Logger.warn(message)
         return this
     }
@@ -357,7 +357,7 @@ export class Command<A extends Application = Application> {
      * @param message The message to log
      * @returns 
      */
-    line (message: string) {
+    line(message: string) {
         Logger.log(message, 'white')
         return this
     }
@@ -368,7 +368,7 @@ export class Command<A extends Application = Application> {
      * @param count Number of new lines to log
      * @returns 
      */
-    newLine (count: number = 1) {
+    newLine(count: number = 1) {
         if (Number(this.getVerbosity()) >= 3 || (!this.isSilent() && !this.isQuiet()))
             for (let i = 0; i < count; i++)
                 console.log('')
@@ -381,7 +381,7 @@ export class Command<A extends Application = Application> {
      * @param message The message to log
      * @returns 
      */
-    success (message: string) {
+    success(message: string) {
         Logger.success(message)
         return this
     }
@@ -392,7 +392,7 @@ export class Command<A extends Application = Application> {
      * @param message The message to log
      * @returns 
      */
-    error (message: string) {
+    error(message: string) {
         Logger.error(message, false)
         return this
     }
@@ -406,7 +406,7 @@ export class Command<A extends Application = Application> {
      * @param message The message to log
      * @returns 
      */
-    fail (message: string) {
+    fail(message: string) {
         this.error(message)
 
         process.exit(1)
@@ -418,7 +418,7 @@ export class Command<A extends Application = Application> {
      * @param message The message to log
      * @returns 
      */
-    debug (message: string | string[]) {
+    debug(message: string | string[]) {
         Logger.debug(message)
         return this
     }
@@ -431,7 +431,7 @@ export class Command<A extends Application = Application> {
      * @param defaultValue The default value 
      * @returns 
      */
-    ask (
+    ask(
         message: string,
         defaultValue?: string | undefined) {
         return Prompts.ask(message, defaultValue)
@@ -445,7 +445,7 @@ export class Command<A extends Application = Application> {
      * @param defaultIndex Item index front of which the cursor will initially appear
      * @returns 
      */
-    choice (
+    choice(
         message: string,
         choices: Choices,
         defaultIndex?: number,
@@ -462,7 +462,7 @@ export class Command<A extends Application = Application> {
      * @param defaultValue The default value 
      * @returns 
      */
-    confirm (
+    confirm(
         message: string,
         defaultValue?: boolean | undefined
     ) {
@@ -477,7 +477,7 @@ export class Command<A extends Application = Application> {
      * @param mask    Mask the user input
      * @returns 
      */
-    secret (
+    secret(
         message: string,
         mask?: string | boolean
     ) {
@@ -490,7 +490,7 @@ export class Command<A extends Application = Application> {
      * @param options The spinner options
      * @returns 
      */
-    spinner (options?: string): Spinner {
+    spinner(options?: string): Spinner {
         return Prompts.spinner(options)
     }
 
@@ -503,7 +503,7 @@ export class Command<A extends Application = Application> {
      * @param defaultValue Set a default value 
      * @returns 
      */
-    anticipate (
+    anticipate(
         message: string,
         source: string[] | ((input?: string | undefined) => Promise<ChoiceOrSeparatorArray<any>>),
         defaultValue?: string,
@@ -522,7 +522,7 @@ export class Command<A extends Application = Application> {
      * @param pageSize The number of items to show per page
      * @returns
      */
-    checkbox (
+    checkbox(
         message: string,
         choices: Choices,
         required?: boolean,
@@ -541,7 +541,7 @@ export class Command<A extends Application = Application> {
      * @param validate A function to validate the input text
      * @returns
      */
-    editor (
+    editor(
         message?: string,
         postfix?: string,
         defaultValue?: string,
