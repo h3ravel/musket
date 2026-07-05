@@ -533,6 +533,18 @@ export class Command<A extends Application = Application> {
     }
 
     /**
+     * Creates a table with the given options and logs it to the console.
+     *
+     * @param options
+     * @returns
+     */
+    table(
+        options?: Parameters<typeof Logger['table']>[0]
+    ): typeof Logger['table'] {
+        return Logger.table(options) as never
+    }
+
+    /**
      * Open the user's default text editor to accept multi-line input.
      * 
      * @param message  Message to display
@@ -548,5 +560,23 @@ export class Command<A extends Application = Application> {
         validate?: (text: string) => boolean | string
     ) {
         return Prompts.editor(message, postfix, defaultValue, validate)
+    }
+
+    /**
+     * Prompt the user for multi-line input directly in the console.
+     *
+     * @param prompt  Message to display
+     * @param placeholder  The placeholder text for the input
+     * @returns
+     */
+    multiline(
+        prompt: string = 'Please provide your input below:',
+        placeholder?: string,
+        options?: Omit<
+            Exclude<Parameters<typeof Prompts['multiline']>[0], string>,
+            | 'prompt' | 'placeholder'
+        >
+    ) {
+        return Prompts.multiline(prompt, placeholder, options)
     }
 }
