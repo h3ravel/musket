@@ -112,6 +112,7 @@ export class Command<A extends Application = Application> {
      * @returns 
      */
     setOption(key: string, value: unknown) {
+        this.input.options[key] = value
         this.program.setOptionValue(key, value)
         return this
     }
