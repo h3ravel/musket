@@ -43,6 +43,39 @@ describe('SignatureBuilder', () => {
         expect(once).toMatchObject({ isFlag: true, flags: ['--once'], required: false, defaultValue: false })
     })
 
+    it('parses inline short|long boolean flag syntax in the option name', () => {
+        const parsed = new SignatureBuilder()
+            .command('serve')
+            .option('--d|dev', { description: 'Run in dev mode' })
+            .option('--watch')
+            .option('watch-poll')
+            .toParsed(stubCommand)
+
+        const dev = parsed.options?.find(o => o.name === '--dev')
+        expect(dev).toMatchObject({
+            isFlag: true,
+            flags: ['-d', '--dev'],
+            required: false,
+            defaultValue: false,
+        })
+
+        const watch = parsed.options?.find(o => o.name === '--watch')
+        expect(watch).toMatchObject({ isFlag: true, flags: ['--watch'], defaultValue: false })
+
+        const watchPoll = parsed.options?.find(o => o.name === '--watch-poll')
+        expect(watchPoll).toMatchObject({ isFlag: true, flags: ['--watch-poll'], defaultValue: false })
+    })
+
+    it('lets an explicit short in the definition win over the inline one', () => {
+        const parsed = new SignatureBuilder()
+            .command('serve')
+            .option('--d|dev', { short: 'D' })
+            .toParsed(stubCommand)
+
+        const dev = parsed.options?.find(o => o.name === '--dev')
+        expect(dev).toMatchObject({ flags: ['-D', '--dev'] })
+    })
+
     it('reconstructs an equivalent, parseable signature string', () => {
         const builder = new SignatureBuilder()
             .command('report:make')

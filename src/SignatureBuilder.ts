@@ -146,16 +146,64 @@ export class SignatureBuilder {
         return this
     }
 
-    /** 
-     * Add an option/flag. 
-      * 
-      * @param name 
-      * @returns 
-      */
+    /**
+     * Add an option/flag.
+     *
+     * By default an option is a boolean flag. The name accepts an optional short
+     * alias inline using the DSL's `short|long` syntax, with or without leading
+     * dashes:
+     *
+     * ```ts
+     * sig.option('dev')          // --dev
+     * sig.option('--dev')        // --dev
+     * sig.option('--d|dev')      // -d, --dev
+     * sig.option('d|dev')        // -d, --dev
+     * ```
+     *
+     * A `short` provided in the {@link OptionDefinition} takes precedence over
+     * one parsed from the name.
+     *
+     * @param name
+     * @returns
+     */
     option (name: string, definition: OptionDefinition = {}): this {
-        this.opts.push({ name: name.replace(/^--?/, '').trim(), ...definition })
+        const { long, short } = this.parseOptionName(name)
+
+        this.opts.push({ ...definition, name: long, short: definition.short ?? short })
 
         return this
+    }
+
+    /**
+     * Parse an option name into its long name and optional short alias. Supports
+     * the `short|long` DSL syntax (e.g. `--d|dev`), independent of dash prefixes
+     * and part ordering. A single-character part is treated as the short alias;
+     * a multi-character part is the long name.
+     */
+    private parseOptionName (raw: string): { long: string, short?: string } {
+        const parts = raw
+            .split('|')
+            .map(part => part.replace(/^--?/, '').trim())
+            .filter(Boolean)
+
+        let long: string | undefined
+        let short: string | undefined
+
+        for (const part of parts) {
+            if (part.length === 1 && short === undefined) {
+                short = part
+            } else {
+                long ??= part
+            }
+        }
+
+        long ??= short ?? ''
+
+        if (long === short) {
+            short = undefined
+        }
+
+        return { long, short }
     }
 
     /** 
