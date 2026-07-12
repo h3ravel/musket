@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@h3ravel/shared':
-        specifier: ^2.2.4
-        version: 2.2.4(@types/node@25.9.3)
+        specifier: ^2.2.5
+        version: 2.2.5(@types/node@25.9.3)
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -340,8 +340,8 @@ packages:
     resolution: {integrity: sha512-+CNAzxglkrpNf/kKywqQfk74QjtceuOE7Qm+AF8miRvPF/wmmK5+OJOgVh3AVTT3RP2mH3+FOaxlE5v72owk0A==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  '@h3ravel/shared@2.2.4':
-    resolution: {integrity: sha512-h8DrvKK54ar69DH2Np7J5y1mLVBPHktFgwqLH8VMv6OIlSfRYjApCd5YUkmfNdm55aEqdZ03Q4UItMRw/QS6iQ==}
+  '@h3ravel/shared@2.2.5':
+    resolution: {integrity: sha512-3nyQMYmB1wXD2JJ9t9hc/xTFBVewmbGkwT47su0Tp7DxhGE6WUJ6M/NhfKTHieO5sw2/1rKSU70lbzDDt2kfzg==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2163,7 +2163,7 @@ snapshots:
       '@eslint/core': 1.2.1
       levn: 0.4.1
 
-  '@h3ravel/shared@2.2.4(@types/node@25.9.3)':
+  '@h3ravel/shared@2.2.5(@types/node@25.9.3)':
     dependencies:
       '@cli-prompts/multiline': 1.0.0
       '@inquirer/prompts': 7.9.0(@types/node@25.9.3)
