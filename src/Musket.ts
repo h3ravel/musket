@@ -1,6 +1,5 @@
 import { Argument, Command as Commander, Option } from 'commander'
-import { CommandMethodResolver, CommandOption, KernelConfig, ParsedCommand } from './Contracts/ICommand'
-import { UserConfig, build } from 'tsdown'
+import { CommandMethodResolver, CommandOption, KernelConfig, MusketBuildConfig, ParsedCommand } from './Contracts/ICommand'
 
 import { Application } from './Contracts/Application'
 import { Command } from './Core/Command'
@@ -36,7 +35,7 @@ export class Musket<A extends Application = Application> {
         private kernel: Kernel<A>,
         private baseCommands: Command<A>[] = [],
         private resolver?: CommandMethodResolver,
-        private tsDownConfig: UserConfig = {}
+        private tsDownConfig: MusketBuildConfig = {}
     ) {
         this.program = new Commander()
     }
@@ -485,6 +484,8 @@ export class Musket<A extends Application = Application> {
 
     async rebuild (name: string) {
         if (name !== 'fire' && name !== 'build' && this.config.allowRebuilds) {
+            const build = await this.resolveTsdownBuild()
+
             await build({
                 ...this.tsDownConfig,
                 logLevel: 'silent',
@@ -492,6 +493,26 @@ export class Musket<A extends Application = Application> {
                 plugins: []
             })
         }
+    }
+
+    private async resolveTsdownBuild () {
+        try {
+            const moduleName = 'tsdown'
+            const module = await import(moduleName) as {
+                build?: (config: MusketBuildConfig) => Promise<unknown>
+            }
+
+            if (typeof module.build === 'function') {
+                return module.build
+            }
+        } catch (cause) {
+            throw new Error(
+                'Musket rebuilds require the optional "tsdown" package. Install it in your application to use allowRebuilds.',
+                { cause }
+            )
+        }
+
+        throw new Error('The installed "tsdown" package does not export a build function.')
     }
 
     private makeOption (opt: CommandOption, cmd: Commander, parse?: boolean, parent?: any) {

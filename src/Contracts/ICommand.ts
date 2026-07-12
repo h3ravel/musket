@@ -1,7 +1,13 @@
 import { type Command } from '../Core/Command'
 import { type LoggerChalk } from '@h3ravel/shared'
-import { type UserConfig } from 'tsdown'
 import type { Application } from './Application'
+
+/**
+ * Configuration forwarded to the optional tsdown integration when rebuilds
+ * are enabled. Musket deliberately keeps this structural so importing its
+ * public types does not require tsdown to be installed.
+ */
+export type MusketBuildConfig = object
 
 export type CommandOption = {
     name: string;
@@ -172,7 +178,7 @@ export interface KernelConfig<A extends Application = Application> {
     /**
      * If we need to programmatically run the tsdown build command, we will use this config.
      */
-    tsDownConfig?: UserConfig
+    tsDownConfig?: MusketBuildConfig
     /**
      * Packages that should show up up when the `-V` flag is passed
      */
