@@ -29,9 +29,6 @@ importers:
       preferred-pm:
         specifier: ^4.1.1
         version: 4.1.1
-      radashi:
-        specifier: ^12.6.2
-        version: 12.6.2
       resolve-from:
         specifier: ^5.0.0
         version: 5.0.0
@@ -1600,10 +1597,6 @@ packages:
 
   quansync@1.0.0:
     resolution: {integrity: sha512-5xZacEEufv3HSTPQuchrvV6soaiACMFnq1H8wkVioctoH3TRha9Sz66lOxRwPK/qZj7HPiSveih9yAyh98gvqA==}
-
-  radashi@12.6.2:
-    resolution: {integrity: sha512-43uD9P3oZ1nT9lgHr2P34K7aEIQh6ku2FDQsDhjaUpaj2sb3il6Xe8s8MS31uJmcbYl0v2Ul35V7OjMG8yrcDw==}
-    engines: {node: '>=16.0.0'}
 
   resolve-from@5.0.0:
     resolution: {integrity: sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw==}
@@ -3344,8 +3337,6 @@ snapshots:
   punycode@2.3.1: {}
 
   quansync@1.0.0: {}
-
-  radashi@12.6.2: {}
 
   resolve-from@5.0.0: {}
 
