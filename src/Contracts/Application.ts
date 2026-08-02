@@ -1,14 +1,26 @@
 import { Command } from '../Core/Command'
 import { Musket } from 'src/Musket'
 
-export declare class Application {
+export abstract class Application {
     [key: string]: any
     /**
      * The current musket CLI Instance
      */
-    musket?: Musket
+    musket?: Musket<this>
     /**
      * Registered commands will be preloaded
      */
-    registeredCommands?: typeof Command[]
+    registeredCommands?: Array<typeof Command<this>>
+
+    /**
+     * Set the current musket instance
+     * 
+     * @param musket 
+     * @returns 
+     */
+    setMusket(musket: Musket<this>): this {
+        this.musket = musket
+
+        return this
+    }
 }

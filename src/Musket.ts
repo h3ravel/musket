@@ -11,8 +11,14 @@ import { Signature } from './Signature'
 import { altLogo } from './logo'
 import { glob } from 'glob'
 import path from 'node:path'
+import type { CommandHandledEvent, CommandHandleFailedEvent, CommandHandlingEvent, EventListener } from './Contracts/Utils'
+import { Event } from './Core/Event'
 
 export class Musket<A extends Application = Application> {
+    readonly afterHandle = new Event<CommandHandledEvent<A>>()
+    readonly beforeHandle = new Event<CommandHandlingEvent<A>>()
+    readonly handleFailed = new Event<CommandHandleFailedEvent<A>>()
+
     /**
      * The name of the CLI app we're building
      * 
@@ -40,14 +46,14 @@ export class Musket<A extends Application = Application> {
         this.program = new Commander()
     }
 
-    async build () {
+    async build() {
         await this
             .loadBaseCommands()
             .loadDiscoveredCommands()
         return await this.initialize()
     }
 
-    private loadBaseCommands () {
+    private loadBaseCommands() {
         const commands: Command<A>[] = this.baseCommands
             .concat([
                 new HelpCommand(this.app, this.kernel),
@@ -65,7 +71,7 @@ export class Musket<A extends Application = Application> {
      * @param config 
      * @returns 
      */
-    public configure (config: KernelConfig<A>) {
+    public configure(config: KernelConfig<A>) {
         this.config = config
         return this
     }
@@ -80,12 +86,12 @@ export class Musket<A extends Application = Application> {
      * 
      * @returns the current cli intance
      */
-    public discoverCommandsFrom (paths: string | string[]) {
+    public discoverCommandsFrom(paths: string | string[]) {
         this.config.discoveryPaths = paths
         return this
     }
 
-    private async loadDiscoveredCommands () {
+    private async loadDiscoveredCommands() {
         const commands: Command<A>[] = [
             ...(this.app.registeredCommands ?? []).map(cmd => new cmd(this.app, this.kernel))
         ]
@@ -137,7 +143,7 @@ export class Musket<A extends Application = Application> {
      *
      * @param file  Absolute or cwd-relative path to the command module.
      */
-    private async importCommandModule (file: string): Promise<Record<string, unknown>> {
+    private async importCommandModule(file: string): Promise<Record<string, unknown>> {
         if (this.config.importModule) {
             return await this.config.importModule(file)
         }
@@ -162,7 +168,7 @@ export class Musket<A extends Application = Application> {
      * @param mod   The imported module namespace.
      * @param name  The file name without extension.
      */
-    private resolveCommandClass (
+    private resolveCommandClass(
         mod: Record<string, unknown>,
         name: string
     ): (new (...args: any[]) => Command<A>) | undefined {
@@ -188,7 +194,7 @@ export class Musket<A extends Application = Application> {
      *
      * @param value  The candidate export.
      */
-    private isCommandClass (value: unknown): value is (new (...args: any[]) => Command<A>) {
+    private isCommandClass(value: unknown): value is (new (...args: any[]) => Command<A>) {
         return typeof value === 'function'
             && typeof (value as { prototype?: { getSignature?: unknown } }).prototype?.getSignature === 'function'
     }
@@ -198,7 +204,7 @@ export class Musket<A extends Application = Application> {
      *
      * @param message
      */
-    private warnDiscovery (message: string) {
+    private warnDiscovery(message: string) {
         Logger.log([
             ['[musket]', 'yellow'],
             [message, 'white']
@@ -216,7 +222,7 @@ export class Musket<A extends Application = Application> {
      *
      * @param command
      */
-    addCommand (command: Command<A>) {
+    addCommand(command: Command<A>) {
         if (!command || typeof command.getSignature !== 'function') {
             this.warnDiscovery(`Skipping ${this.describeCommand(command)}: not a valid command (no getSignature()).`)
 
@@ -257,7 +263,7 @@ export class Musket<A extends Application = Application> {
      *
      * @param command
      */
-    private describeCommand (command: unknown): string {
+    private describeCommand(command: unknown): string {
         return (command as { constructor?: { name?: string } })?.constructor?.name ?? 'command'
     }
 
@@ -266,7 +272,7 @@ export class Musket<A extends Application = Application> {
      *
      * @param command
      */
-    registerCommands (commands: Command<A>[]) {
+    registerCommands(commands: Command<A>[]) {
         commands.forEach(e => this.addCommand(e))
 
         return this
@@ -275,11 +281,11 @@ export class Musket<A extends Application = Application> {
     /**
      * Get all the registered commands
      */
-    getRegisteredCommands (): ParsedCommand[] {
+    getRegisteredCommands(): ParsedCommand[] {
         return this.commands
     }
 
-    private async initialize () {
+    private async initialize() {
         // Build the app if the user is calling for help to ensure we get the latest data
         if (process.argv.includes('--help') || process.argv.includes('-h')) {
             await this.rebuild('help')
@@ -309,7 +315,9 @@ export class Musket<A extends Application = Application> {
                 .configureHelp({ showGlobalOptions: true })
                 .addOption(new Option(additional.quiet[0], additional.quiet[1]))
                 .addOption(new Option(additional.silent[0], additional.silent[1]).implies({ quiet: true }))
-                .addOption(new Option(additional.verbose[0], additional.verbose[1]).choices(['1', '2', '3', 'v', 'vv']).default('1'))
+                .addOption(new Option(additional.verbose[0], additional.verbose[1]).choices([
+                    '1', '2', '3', 'v', 'vv'
+                ]).default('1'))
                 .addOption(new Option(additional.noInteraction[0], additional.noInteraction[1]))
                 .action(async () => {
                     const instance = new ListCommand(this.app, this.kernel)
@@ -323,6 +331,7 @@ export class Musket<A extends Application = Application> {
             const root = new this.config.rootCommand(this.app, this.kernel)
             const sign = root.toParsedSignature?.()
                 ?? Signature.parseSignature(root.getSignature(), root)
+
             const cmd = this.program
                 .name(sign.baseCommand)
                 .description(sign.description ?? sign.baseCommand)
@@ -331,6 +340,7 @@ export class Musket<A extends Application = Application> {
                     root.setInput(this.program.opts(), this.program.args, this.program.registeredArguments, {}, this.program)
                     await this.handle(root)
                 })
+
             if ((sign.options?.length ?? 0) > 0) {
                 sign.options
                     ?.filter((v, i, a) => a.findIndex(t => t.name === v.name) === i)
@@ -348,7 +358,7 @@ export class Musket<A extends Application = Application> {
             styleOptionTerm: (str) => Logger.log(str, 'green', false),
             styleArgumentTerm: (str) => Logger.log(str, 'green', false),
             styleSubcommandTerm: (str) => Logger.log(str, 'green', false),
-            formatItemList (heading, items) {
+            formatItemList(heading, items) {
                 if (items.length < 1) {
                     return []
                 }
@@ -482,7 +492,7 @@ export class Musket<A extends Application = Application> {
         return this.program
     }
 
-    async rebuild (name: string) {
+    async rebuild(name: string) {
         if (name !== 'fire' && name !== 'build' && this.config.allowRebuilds) {
             const build = await this.resolveTsdownBuild()
 
@@ -495,7 +505,7 @@ export class Musket<A extends Application = Application> {
         }
     }
 
-    private async resolveTsdownBuild () {
+    private async resolveTsdownBuild() {
         try {
             const moduleName = 'tsdown'
             const module = await import(moduleName) as {
@@ -515,7 +525,7 @@ export class Musket<A extends Application = Application> {
         throw new Error('The installed "tsdown" package does not export a build function.')
     }
 
-    private makeOption (opt: CommandOption, cmd: Commander, parse?: boolean, parent?: any) {
+    private makeOption(opt: CommandOption, cmd: Commander, parse?: boolean, parent?: any) {
         const description = opt.description?.replace(/\[(\w+)\]/g, (_, k) => parent?.[k] ?? `[${k}]`) ?? ''
         const type = opt.name.replaceAll('-', '')
 
@@ -574,26 +584,76 @@ export class Musket<A extends Application = Application> {
         }
     }
 
-    private async handle (cmd: Command<A>) {
-        if (this.resolver) {
-            return await this.resolver(cmd, 'handle')
-        }
+    /**
+     * Register an event listener using {@link Event.on}
+     * 
+     * @param event 
+     * @param callback 
+     */
+    public listen<E extends 'handling' | 'handled' | 'error'>(
+        event: E,
+        callback: EventListener<E extends 'handling'
+            ? CommandHandlingEvent<A>
+            : E extends 'handled'
+            ? CommandHandledEvent<A>
+            : CommandHandleFailedEvent<A>
+        >
+    ) {
+        const handler = event === 'handling'
+            ? this.app.musket?.beforeHandle
+            : this.app.musket?.afterHandle
 
-        await cmd.handle(this.app)
+        return handler?.on(callback as never) ?? (() => { })
     }
 
-    static async parse<E extends boolean = false, A extends Application = Application> (
+    /**
+     * Handle the command
+     * 
+     * @param cmd 
+     * @returns 
+     */
+    private async handle(cmd: Command<A>): Promise<unknown> {
+        const event: CommandHandlingEvent<A> = {
+            app: this.app,
+            command: cmd,
+        }
+
+        await this.beforeHandle.emit(event)
+
+        try {
+            const result = this.resolver
+                ? await this.resolver(cmd, 'handle')
+                : await cmd.handle(this.app)
+
+            await this.afterHandle.emit({
+                ...event,
+                result,
+            })
+
+            return result
+        }
+        catch (error) {
+            await this.handleFailed.emit({
+                ...event,
+                error,
+            })
+
+            throw error
+        }
+    }
+
+    static async parse<E extends boolean = false, A extends Application = Application>(
         kernel: Kernel<A>,
         config: KernelConfig<A>,
         returnExit?: E
     ): Promise<E extends true ? number : Commander>
-    static async parse<E extends boolean = false, A extends Application = Application> (
+    static async parse<E extends boolean = false, A extends Application = Application>(
         kernel: Kernel<A>,
         config: KernelConfig<A>,
         commands: typeof Command<A>[],
         returnExit?: E
     ): Promise<E extends true ? number : Commander>
-    static async parse<_E extends boolean = false, A extends Application = Application> (
+    static async parse<_E extends boolean = false, A extends Application = Application>(
         kernel: Kernel<A>,
         config: KernelConfig<A> = {},
         extraCommands: typeof Command<A>[] | boolean = [],
@@ -606,7 +666,14 @@ export class Musket<A extends Application = Application> {
         }
 
         const commands = config.baseCommands?.concat(extraCommands)?.map(e => new e(kernel.app, kernel))
-        const cli = new Musket(kernel.app, kernel, commands, config.resolver, config.tsDownConfig).configure(config)
+
+        const cli = new Musket<A>(
+            kernel.app,
+            kernel, commands,
+            config.resolver,
+            config.tsDownConfig
+        ).configure(config)
+
         if (config.name) cli.name = config.name
 
         const command = (await cli.build())
@@ -628,7 +695,7 @@ export class Musket<A extends Application = Application> {
         }
 
         if (cli.app) {
-            cli.app.musket = cli
+            cli.app.setMusket(cli)
         }
 
         if (returnExit === true) {

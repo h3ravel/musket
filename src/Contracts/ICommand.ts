@@ -79,6 +79,11 @@ export type PackageMeta = string | {
      */
     label?: string,
     /**
+     * By default, Musket cli will try to resolve the dependency at
+     * cwd, set this to overide the search path.
+     */
+    path?: string,
+    /**
      * Hardcoded version string, bypassing `package.json` resolution.
      */
     version?: string,
@@ -89,10 +94,10 @@ export type PackageMeta = string | {
  */
 export type ModuleMeta = {
     name: string
-    version: string
+    base?: boolean
     alias?: string
     label?: string
-    base?: boolean
+    version: string
 }
 
 /**

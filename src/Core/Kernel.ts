@@ -41,7 +41,7 @@ export class Kernel<A extends Application = Application> {
 
     constructor(public app: A) { }
 
-    async ensureDirectoryExists (dir: string) {
+    async ensureDirectoryExists(dir: string) {
         await mkdir(dir, { recursive: true })
     }
 
@@ -52,7 +52,7 @@ export class Kernel<A extends Application = Application> {
      * @param config 
      * @returns 
      */
-    static async init<A extends Application> (
+    static async init<A extends Application>(
         app: A,
         config: KernelConfig = {}
     ) {
@@ -66,14 +66,14 @@ export class Kernel<A extends Application = Application> {
     /**
      * Run the CLI IO
      */
-    async run<E extends boolean = false> (returnExit?: E) {
+    async run<E extends boolean = false>(returnExit?: E) {
         return await Musket.parse(this, this.config, this.getRegisteredCommands(), returnExit)
     }
 
     /**
      * Set the configuration for the CLI
      */
-    setConfig (config: KernelConfig) {
+    setConfig(config: KernelConfig) {
         this.config = config
         return this
     }
@@ -81,14 +81,14 @@ export class Kernel<A extends Application = Application> {
     /**
      * Get the configuration for the CLI
      */
-    getConfig (): KernelConfig {
+    getConfig(): KernelConfig {
         return this.config
     }
 
     /**
      * Set the current working directory
      */
-    setCwd (cwd: string) {
+    setCwd(cwd: string) {
         this.cwd = cwd
         return this
     }
@@ -96,14 +96,14 @@ export class Kernel<A extends Application = Application> {
     /**
      * Get the current working directory
      */
-    getCwd (): string {
+    getCwd(): string {
         return this.cwd
     }
 
     /**
      * Set the packages that should show up up when the -V flag is passed
      */
-    setPackages (packages: PackageMeta[]) {
+    setPackages(packages: PackageMeta[]) {
         this.packages = packages
         return this
     }
@@ -111,7 +111,7 @@ export class Kernel<A extends Application = Application> {
     /**
      * Get the packages that should show up up when the -V flag is passed
      */
-    getPackages (): PackageMeta[] {
+    getPackages(): PackageMeta[] {
         return this.packages
     }
 
@@ -120,7 +120,7 @@ export class Kernel<A extends Application = Application> {
      * 
      * @param command 
      */
-    registerCommands (commands: typeof Command<A>[]) {
+    registerCommands(commands: typeof Command<A>[]) {
         commands.forEach(e => this.commands.add(e))
 
         return this
@@ -129,7 +129,7 @@ export class Kernel<A extends Application = Application> {
     /**
      * Get all the pre-registered commands
      */
-    getRegisteredCommands (): typeof Command<A>[] {
+    getRegisteredCommands(): typeof Command<A>[] {
         return Array.from(this.commands)
     }
 
@@ -138,7 +138,7 @@ export class Kernel<A extends Application = Application> {
      * 
      * @param path 
      */
-    registerDiscoveryPath (path: string | string[]): this {
+    registerDiscoveryPath(path: string | string[]): this {
         path = Array.isArray(path) ? path : [path]
         const discoveryPaths = Array.isArray(this.config.discoveryPaths)
             ? this.config.discoveryPaths
@@ -153,7 +153,7 @@ export class Kernel<A extends Application = Application> {
     /**
      * Get all the registered discovery paths
      */
-    getDiscoveryPaths (): string[] {
+    getDiscoveryPaths(): string[] {
         return Array.isArray(this.config.discoveryPaths)
             ? this.config.discoveryPaths
             : (this.config.discoveryPaths ? [this.config.discoveryPaths] : [])
@@ -162,7 +162,7 @@ export class Kernel<A extends Application = Application> {
     /**
      * Prepares the CLI for execution
      */
-    bootstrap (): this {
+    bootstrap(): this {
         let version = this.config.version
         const require = createRequire(import.meta.url)
         this.cwd ??= path.join(process.cwd(), this.basePath)
@@ -175,20 +175,31 @@ export class Kernel<A extends Application = Application> {
             } catch { /** */ }
         }
 
-        for (let i = 0; i < this.packages.length; i++) {
+        for (const item of this.packages) {
             try {
-                const item = this.packages[i]
+                const cwd = typeof item === 'string' ? this.cwd : (item.path ?? this.cwd)
                 const name = typeof item === 'string' ? item : item.name
                 const alias = typeof item === 'string' ? item : (item.alias ?? item.name)
                 const base = typeof item === 'string' ? false : item.base
                 const label = typeof item === 'string' ? undefined : item.label
                 const versionOverride = typeof item === 'string' ? undefined : item.version
 
-                const modulePath = FileSystem.findModulePkg(name, this.cwd) ?? ''
+                if (typeof item === 'object' && item.version && item.name) {
+                    this.modules.push({
+                        base: item.base,
+                        name: item.name,
+                        label: item.label,
+                        alias: item.alias,
+                        version: item.version,
+                    })
+                    continue
+                }
+
+                const modulePath = FileSystem.findModulePkg(name, cwd) ?? ''
                 const pkg = require(path.join(modulePath, 'package.json'))
                 pkg.alias = alias
                 pkg.base = base
-                if (label) pkg.label = label
+                pkg.label = label
 
                 /** A per-package version wins, then the base-package override. */
                 if (versionOverride) {
@@ -225,7 +236,7 @@ export class Kernel<A extends Application = Application> {
      *
      * @param module
      */
-    formatModuleLabel (module: ModuleMeta): string {
+    formatModuleLabel(module: ModuleMeta): string {
         if (module.label) return module.label
 
         return String(module.alias ?? module.name)
@@ -242,7 +253,7 @@ export class Kernel<A extends Application = Application> {
      *
      * @param module
      */
-    renderModuleVersion (module: ModuleMeta): string {
+    renderModuleVersion(module: ModuleMeta): string {
         const colors = this.config.versionColors ?? {}
 
         return Logger.parse([
@@ -258,7 +269,7 @@ export class Kernel<A extends Application = Application> {
      * Honors {@link KernelConfig.versionFormatter} for complete control,
      * otherwise joins each module with {@link KernelConfig.versionSeparator}.
      */
-    getVersionString (): string {
+    getVersionString(): string {
         const modules = this.modules as ModuleMeta[]
         const separator = this.config.versionSeparator ?? ' | '
 
