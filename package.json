@@ -86,7 +86,7 @@
     "glob": "^13.0.6",
     "preferred-pm": "^4.1.1",
     "resolve-from": "^5.0.0",
-    "tsx": "^4.20.5"
+    "tsx": "^4.22.0"
   },
   "peerDependencies": {
     "tsdown": "^0.22.2"
