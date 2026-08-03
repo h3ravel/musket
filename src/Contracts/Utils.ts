@@ -28,3 +28,11 @@ export interface CommandHandleFailedEvent<
 > extends CommandHandlingEvent<A> {
     error: unknown
 }
+
+export interface CommandEventMap<
+    A extends Application = Application,
+> {
+    handling: CommandHandlingEvent<A>
+    handled: CommandHandledEvent<A>
+    error: CommandHandleFailedEvent<A>
+}

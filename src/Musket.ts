@@ -11,7 +11,7 @@ import { Signature } from './Signature'
 import { altLogo } from './logo'
 import { glob } from 'glob'
 import path from 'node:path'
-import type { CommandHandledEvent, CommandHandleFailedEvent, CommandHandlingEvent, EventListener } from './Contracts/Utils'
+import type { CommandEventMap, CommandHandledEvent, CommandHandleFailedEvent, CommandHandlingEvent, EventListener } from './Contracts/Utils'
 import { Event } from './Core/Event'
 
 export class Musket<A extends Application = Application> {
@@ -585,25 +585,28 @@ export class Musket<A extends Application = Application> {
     }
 
     /**
-     * Register an event listener using {@link Event.on}
-     * 
-     * @param event 
-     * @param callback 
+     * Register a command lifecycle event listener.
+     *
+     * This is a shortcut for registering listeners directly through
+     * {@link Musket.beforeHandle}, {@link Musket.afterHandle}, or
+     * {@link Musket.handleFailed}.
+     *
+     * @param event The command lifecycle event to listen for.
+     * @param callback The listener invoked when the event is emitted.
+     *
+     * @returns A function that removes the registered listener.
      */
-    public listen<E extends 'handling' | 'handled' | 'error'>(
+    public listen<E extends keyof CommandEventMap<A>>(
         event: E,
-        callback: EventListener<E extends 'handling'
-            ? CommandHandlingEvent<A>
-            : E extends 'handled'
-            ? CommandHandledEvent<A>
-            : CommandHandleFailedEvent<A>
-        >
-    ) {
-        const handler = event === 'handling'
-            ? this.app.musket?.beforeHandle
-            : this.app.musket?.afterHandle
+        callback: EventListener<CommandEventMap<A>[E]>,
+    ): () => void {
+        const handlers = {
+            handling: this.beforeHandle,
+            handled: this.afterHandle,
+            error: this.handleFailed,
+        }
 
-        return handler?.on(callback as never) ?? (() => { })
+        return handlers[event].on(callback as never)
     }
 
     /**

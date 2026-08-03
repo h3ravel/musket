@@ -5,7 +5,7 @@ import { Argument, type Command as ICommand } from 'commander'
 import { Kernel } from './Kernel'
 import { ParsedCommand } from '../Contracts/ICommand'
 import { SignatureBuilder } from '../SignatureBuilder'
-import { XGeneric } from '../Contracts/Utils'
+import { CommandEventMap, EventListener, XGeneric } from '../Contracts/Utils'
 
 export class Command<A extends Application = Application> {
     constructor(protected app: A, protected kernel: Kernel<A>) { }
@@ -145,6 +145,25 @@ export class Command<A extends Application = Application> {
     setProgram(program: ICommand) {
         this.program = program
         return this
+    }
+
+    /**
+     * Register a command lifecycle event listener.
+     *
+     * This is a shortcut for registering listeners directly through
+     * {@link Musket.beforeHandle}, {@link Musket.afterHandle}, or
+     * {@link Musket.handleFailed}.
+     *
+     * @param event The command lifecycle event to listen for.
+     * @param callback The listener invoked when the event is emitted.
+     *
+     * @returns A function that removes the registered listener.
+     */
+    public listen<E extends keyof CommandEventMap<A>>(
+        event: E,
+        callback: EventListener<CommandEventMap<A>[E]>,
+    ): () => void {
+        return this.app.musket?.listen(event, callback) ?? (() => { })
     }
 
     /**

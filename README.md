@@ -18,101 +18,415 @@ Musket CLI is a framework-agnostic CLI framework designed to allow you build art
 
 ## Installation
 
-To use **Musket CLI**, you may install it by running:
+Install **Musket CLI** using your preferred package manager:
 
 ```sh
-
 npm install @h3ravel/musket
-# or
+```
+
+```sh
 pnpm add @h3ravel/musket
-# or
+```
+
+```sh
 yarn add @h3ravel/musket
 ```
 
 ## Quick Setup
 
-The base requirement fo setting up **Musket CLI** is an application class that it can bind itself to:
+Musket requires an application class that extends its base `Application` class:
 
 ```ts
-class Application {}
+import { Application as BaseApplication } from '@h3ravel/musket';
+
+export class Application extends BaseApplication {}
 ```
 
-Once bound, **Musket CLI** will bind itself to the application class as `musket` and can be accessed as:
+When Musket is initialized, it binds itself to the application instance through the `musket` property:
 
 ```ts
 const app = new Application();
 
-// Initialize Musket CLI here
+// Initialize Musket CLI here.
 
 console.log(app.musket);
 ```
 
-### Initialization
+The `musket` property is only available after Musket has been initialized.
 
-To initialize **Musket CLI** you can follow the example below:
+## Initialization
+
+Use `Kernel.init()` to initialize Musket:
 
 ```ts
-import { Kernel } from 'h3ravel/musket';
+import { Kernel } from '@h3ravel/musket';
+import { Application } from './Application';
 
 const app = new Application();
 
-Kernel.init(app);
+await Kernel.init(app);
 ```
 
-The `init` method returs and instance of `commanderjs`'s `Command` class allowing to further extend and customize your app if there is a need for that.
-
-### Passing Configuration
-
-Musket allows passing a `config` object that alters it's behavior and provide some level of customizations
+After initialization, the current Musket instance can be accessed from the application:
 
 ```ts
-Kernel.init(app, {
-  packages: ['@h3ravel/shared', '@h3ravel/support'],
+console.log(app.musket);
+```
+
+The `init()` method returns Commander.js' `Command` instance, allowing you to further extend or customize the underlying CLI program:
+
+```ts
+const program = await Kernel.init(app);
+
+program.option('--debug', 'Enable debug mode');
+```
+
+## Passing Configuration
+
+Musket accepts a configuration object as the second argument to `Kernel.init()`:
+
+```ts
+import path from 'node:path';
+import { Kernel } from '@h3ravel/musket';
+
+await Kernel.init(app, {
   name: 'musket-cli',
+  packages: ['@h3ravel/shared', '@h3ravel/support'],
   discoveryPaths: [path.join(process.cwd(), 'tests/Commands/*.ts')],
 });
 ```
 
-### Advanced Initialization
+The configuration can be used to define the CLI name, package discovery, command discovery paths and other Musket behaviour.
 
-If you need fine grained control with your initialization, `Musket CLI` exposes just the right methods to enable you do just that, when when initializing the CLI in this manner, the `packages` config property is completely ignored, as a work around, chain the `setPackages` method to the Kernel intance to achieve the same results.
+## Advanced Initialization
+
+For more control over the initialization process, create the `Kernel` instance directly and configure it using the available methods:
 
 ```ts
-import { Kernel } from 'h3ravel/musket';
+import path from 'node:path';
+import { Kernel } from '@h3ravel/musket';
+import { Application } from './Application';
 import { TestCommand } from './TestCommand';
 
 const app = new Application();
 
-const instance = new Kernel(app)
+const kernel = new Kernel(app)
   .setCwd(process.cwd())
   .setConfig({
     name: 'musket-cli',
     discoveryPaths: [path.join(process.cwd(), 'tests/Commands/*.ts')],
   })
   .setPackages([
-    { name: '@h3ravel/shared', alias: 'Shared PKG' },
+    {
+      name: '@h3ravel/shared',
+      alias: 'Shared Package',
+    },
     '@h3ravel/support',
   ])
   .registerCommands([TestCommand])
   .bootstrap();
 
-return await instance.run();
+await kernel.run();
 ```
+
+When initializing Musket manually, the `packages` property passed through `setConfig()` is ignored.
+
+Use `setPackages()` instead:
+
+```ts
+kernel.setPackages(['@h3ravel/shared', '@h3ravel/support']);
+```
+
+## Application Lifecycle
+
+The application constructor runs before Musket has been initialized. This means `this.musket` should not be accessed from the constructor:
+
+```ts
+export class Application extends BaseApplication {
+  constructor() {
+    super();
+
+    /*
+     * Musket has not been attached at this point.
+     */
+    console.log(this.musket);
+  }
+}
+```
+
+Use the `registerMusketListeners()` lifecycle method when you need to access the Musket instance or register command lifecycle listeners:
+
+```ts
+import { Application as BaseApplication, Musket } from '@h3ravel/musket';
+
+export class Application extends BaseApplication {
+  protected registerMusketListeners(musket: Musket<this>): void {
+    console.log('Musket has been attached', musket);
+  }
+}
+```
+
+This method is called after Musket has been attached to the application instance.
+
+Application properties and services are also available inside the method:
+
+```ts
+export class Application extends BaseApplication {
+  logger = console;
+
+  protected registerMusketListeners(musket: Musket<this>): void {
+    musket.beforeHandle.on(({ command }) => {
+      this.logger.log(`Handling ${command.constructor.name}`);
+    });
+  }
+}
+```
+
+## Command Lifecycle Events
+
+Musket exposes events that allow applications and packages to listen to the command execution lifecycle.
+
+The available events are:
+
+- `beforeHandle`
+- `afterHandle`
+- `handleFailed`
+
+### Before Handle
+
+The `beforeHandle` event is emitted immediately before the command's `handle()` method or custom resolver is called:
+
+```ts
+protected registerMusketListeners(
+  musket: Musket<this>,
+): void {
+  musket.beforeHandle.on(({ app, command }) => {
+    console.log(
+      `Handling ${command.constructor.name}`,
+    );
+
+    console.log(app);
+  });
+}
+```
+
+The listener receives:
+
+```ts
+{
+  app,
+  command,
+}
+```
+
+Listeners may also be asynchronous:
+
+```ts
+musket.beforeHandle.on(async ({ command }) => {
+  await prepareCommand(command);
+});
+```
+
+### After Handle
+
+The `afterHandle` event is emitted after a command has completed successfully:
+
+```ts
+protected registerMusketListeners(
+  musket: Musket<this>,
+): void {
+  musket.afterHandle.on(({
+    command,
+    result,
+  }) => {
+    console.log(
+      `Handled ${command.constructor.name}`,
+      result,
+    );
+  });
+}
+```
+
+The listener receives:
+
+```ts
+{
+  app,
+  command,
+  result,
+}
+```
+
+The `result` property contains the value returned by the command's `handle()` method or custom resolver.
+
+### Handle Failed
+
+The `handleFailed` event is emitted when the command's `handle()` method or custom resolver throws an error:
+
+```ts
+protected registerMusketListeners(
+  musket: Musket<this>,
+): void {
+  musket.handleFailed.on(({
+    command,
+    error,
+  }) => {
+    console.error(
+      `Failed to handle ${command.constructor.name}`,
+      error,
+    );
+  });
+}
+```
+
+The listener receives:
+
+```ts
+{
+  app,
+  command,
+  error,
+}
+```
+
+The original error is rethrown after all failure listeners have completed.
+
+The command lifecycle follows this order:
+
+```text
+beforeHandle
+    ├── success → afterHandle
+    └── failure → handleFailed → rethrow
+```
+
+Errors thrown by a `beforeHandle` listener are not considered command handling failures and therefore do not emit `handleFailed`.
+
+### Removing Listeners
+
+The `on()` method returns a function that can be used to remove the listener:
+
+```ts
+const removeListener = musket.beforeHandle.on(({ command }) => {
+  console.log(command.constructor.name);
+});
+
+removeListener();
+```
+
+Listeners may also be registered to run only once:
+
+```ts
+musket.beforeHandle.once(({ command }) => {
+  console.log(`First command: ${command.constructor.name}`);
+});
+```
+
+### Event Listener Shortcut
+
+Musket provides a `listen()` method as a convenient alternative to accessing its lifecycle event properties directly.
+
+```ts
+musket.listen('handling', ({ command }) => {
+  console.log(`Handling ${command.constructor.name}`);
+});
+
+musket.listen('handled', ({ command, result }) => {
+  console.log(`${command.constructor.name} completed`, result);
+});
+
+musket.listen('error', ({ command, error }) => {
+  console.error(`${command.constructor.name} failed`, error);
+});
+```
+
+The supported event names are:
+
+| Event      | Lifecycle event | Emitted when                             |
+| ---------- | --------------- | ---------------------------------------- |
+| `handling` | `beforeHandle`  | Before command handling begins           |
+| `handled`  | `afterHandle`   | After the command completes successfully |
+| `error`    | `handleFailed`  | When command handling throws an error    |
+
+The following registrations are equivalent:
+
+```ts
+musket.listen('handling', callback);
+musket.beforeHandle.on(callback);
+```
+
+```ts
+musket.listen('handled', callback);
+musket.afterHandle.on(callback);
+```
+
+```ts
+musket.listen('error', callback);
+musket.handleFailed.on(callback);
+```
+
+The method returns a function that removes the listener:
+
+```ts
+const removeListener = musket.listen('handled', ({ command }) => {
+  console.log(command.constructor.name);
+});
+
+removeListener();
+```
+
+### Listening from Commands
+
+The base `Command` class also exposes a `listen()` method. It delegates listener registration to the current Musket instance:
+
+```ts
+export default class GreetCommand extends Command {
+  protected signature = 'greet {name}';
+
+  async handle(): Promise<void> {
+    const removeListener = this.listen('error', ({ command, error }) => {
+      console.error(`${command.constructor.name} failed`, error);
+    });
+
+    this.info(`Hello, ${this.argument('name')}!`);
+
+    removeListener();
+  }
+}
+```
+
+The command shortcut supports the same event names and payloads as `Musket.listen()`:
+
+```ts
+this.listen('handling', ({ app, command }) => {
+  //
+});
+
+this.listen('handled', ({ app, command, result }) => {
+  //
+});
+
+this.listen('error', ({ app, command, error }) => {
+  //
+});
+```
+
+When Musket has not yet been attached to the application, `Command.listen()` does not register the listener and returns an empty removal function.
+
+Listeners registered during `handle()` remain active until removed. A `handling` listener registered from inside `handle()` will not receive the current command's event because that event has already been emitted.
 
 ## Creating Commands
 
-Commands in Musket extend the base `Command` class and define a **signature** and **handle()** method.
-
-Example:
+Musket commands extend the base `Command` class and define a `signature`, `description` and `handle()` method:
 
 ```ts
 import { Command } from '@h3ravel/musket';
 
 export default class GreetCommand extends Command {
   protected signature = 'greet {name}';
+
   protected description = 'Display a personalized greeting.';
 
-  async handle() {
+  async handle(): Promise<void> {
     const name = this.argument('name');
 
     this.info(`Hello, ${name}!`);
@@ -120,36 +434,85 @@ export default class GreetCommand extends Command {
 }
 ```
 
-If your project uses discovery paths (via `discoveryPaths`),
-this command will be automatically registered.
-
-Otherwise, you can manually register it in your application:
+Every command has access to the current application instance through `this.app`:
 
 ```ts
-class Application {
-  registeredCommands = [GreetCommand];
+export default class EnvironmentCommand extends Command {
+  protected signature = 'environment';
+
+  protected description = 'Display the current environment.';
+
+  async handle(): Promise<void> {
+    this.info(this.app.environment);
+  }
 }
+```
 
-await Kernel.init(app);
+The application type can also be passed to the command when stronger type inference is required:
 
-// OR
+```ts
+import { Command } from '@h3ravel/musket';
+import type { Application } from './Application';
 
+export default class EnvironmentCommand extends Command<Application> {
+  protected signature = 'environment';
+
+  async handle(): Promise<void> {
+    this.info(this.app.environment);
+  }
+}
+```
+
+## Registering Commands
+
+When command discovery paths are configured, matching commands are registered automatically:
+
+```ts
+await Kernel.init(app, {
+  discoveryPaths: [path.join(process.cwd(), 'app/Commands/*.ts')],
+});
+```
+
+Commands may also be registered directly on the application:
+
+```ts
+import { BuildCommand } from './Commands/BuildCommand';
+import { GreetCommand } from './Commands/GreetCommand';
+
+export class Application extends BaseApplication {
+  registeredCommands = [GreetCommand, BuildCommand];
+}
+```
+
+Alternatively, pass commands through the kernel configuration:
+
+```ts
 await Kernel.init(app, {
   baseCommands: [GreetCommand, BuildCommand],
 });
 ```
 
+Commands can also be registered during advanced initialization:
+
+```ts
+const kernel = new Kernel(app)
+  .registerCommands([GreetCommand, BuildCommand])
+  .bootstrap();
+
+await kernel.run();
+```
+
 ## Running Commands
 
-Once your CLI is compiled or built, you can run commands via:
+Once the CLI has been compiled or built, commands can be executed using Node.js:
 
-```bash
+```sh
 node dist/cli.js greet Legacy
 ```
 
 Output:
 
-```
+```text
 Hello, Legacy!
 ```
 
