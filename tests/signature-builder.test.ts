@@ -135,7 +135,10 @@ describe('SignatureBuilder integration', () => {
         program = await Kernel.init(app, {
             skipParsing: true,
             name: 'musket-cli',
-            discoveryPaths: [path.join(process.cwd(), 'tests/DiscoveryFixtures/Built.ts')],
+            discoveryPaths: [
+                path.join(process.cwd(), 'tests/DiscoveryFixtures/Built.ts'),
+                path.join(process.cwd(), 'tests/DiscoveryFixtures/Variadic.ts'),
+            ],
         })
     })
 
@@ -153,5 +156,11 @@ describe('SignatureBuilder integration', () => {
         expect(console.log).toHaveBeenCalledWith(chalk.blue('ℹ'), 'BUILT')
         expect(console.log).toHaveBeenCalledWith(chalk.blue('ℹ'), 'hi')
         expect(console.log).toHaveBeenCalledWith(chalk.blue('ℹ'), 'LOUD')
+    })
+
+    it('collects every value of a variadic argument into an array', async () => {
+        await program.parseAsync(['node', 'tests/run', 'disc:variadic', 'alpha', 'beta', 'gamma'])
+
+        expect(console.log).toHaveBeenCalledWith(chalk.blue('ℹ'), 'alpha|beta|gamma')
     })
 })

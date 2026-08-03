@@ -91,7 +91,7 @@ export class Command<A extends Application = Application> {
         this.dictionary = dictionary
         this.input.options = options
         this.input.arguments = regArgs
-            .map((e, i) => ({ [e.name()]: args[i] }))
+            .map((e, i) => ({ [e.name()]: e.variadic ? args.slice(i) : args[i] }))
             .reduce((e, x) => Object.assign(e, x), {})
         this.loadBaseFlags()
 
