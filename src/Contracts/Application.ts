@@ -44,7 +44,7 @@ export abstract class Application {
      * 
      * @param _musket 
      */
-    protected registerMusketListeners(_musket: Musket<this>): void {
+    public registerMusketListeners(_musket: Musket<this>): void {
         //
     }
 }
