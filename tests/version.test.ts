@@ -1,12 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { Application } from '../src/Contracts/Application'
 import { Command } from '../src/Core/Command'
 import { Kernel } from '../src/Core/Kernel'
 import type { KernelConfig } from '../src/Contracts/ICommand'
 import { Logger } from '@h3ravel/shared'
 import { version } from '../package.json'
 
-class App {
+class App extends Application {
     registeredCommands: typeof Command[] = []
     version = '9.9.9'
 }

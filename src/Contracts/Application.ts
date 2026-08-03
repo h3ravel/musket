@@ -5,6 +5,7 @@ export abstract class Application {
     [key: string]: any
 
     private _musket?: Musket<this>
+    private musketListenersBooted = false
 
     /**
      * Registered commands will be preloaded
@@ -35,6 +36,19 @@ export abstract class Application {
         }
 
         return this
+    }
+
+    /**
+     * Register application listeners after Musket has bootstrapped.
+     *
+     * @internal
+     */
+    public bootMusketListeners(): void {
+        if (!this._musket || this.musketListenersBooted)
+            return
+
+        this.musketListenersBooted = true
+        this.registerMusketListeners(this._musket)
     }
 
     /**

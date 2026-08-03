@@ -226,6 +226,12 @@ export class Kernel<A extends Application = Application> {
             this.modules.push({ version: version ?? 'N/A', name: 'Musket CLI' })
         }
 
+
+        /*
+         * The final Musket instance and its event objects are now ready.
+         */
+        this.app.bootMusketListeners()
+
         return this
     }
 

@@ -44,6 +44,7 @@ export class Musket<A extends Application = Application> {
         private tsDownConfig: MusketBuildConfig = {}
     ) {
         this.program = new Commander()
+        app.setMusket(this)
     }
 
     async build() {
@@ -695,10 +696,6 @@ export class Musket<A extends Application = Application> {
             await command
                 .parseAsync(process.argv)
                 .catch(e => config.exceptionHandler?.(e) || void e)
-        }
-
-        if (cli.app) {
-            cli.app.setMusket(cli)
         }
 
         if (returnExit === true) {
