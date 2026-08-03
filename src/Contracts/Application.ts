@@ -5,7 +5,7 @@ export abstract class Application {
     [key: string]: any
 
     private _musket?: Musket<this>
-    private musketListenersBooted = false
+    private musketListenersBooted?: boolean = false
 
     /**
      * Registered commands will be preloaded
