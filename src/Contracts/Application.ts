@@ -29,12 +29,10 @@ export abstract class Application {
      * @returns 
      */
     setMusket(musket: Musket<this>): this {
-        if (this._musket) {
-            throw new Error('Musket is already attached to this application.')
+        if (!this._musket) {
+            this._musket = musket
+            this.registerMusketListeners(musket)
         }
-
-        this._musket = musket
-        this.registerMusketListeners(musket)
 
         return this
     }

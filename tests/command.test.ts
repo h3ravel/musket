@@ -4,8 +4,9 @@ import { type Command as Commander } from 'commander'
 import { Kernel } from '../src/Core/Kernel'
 import path from 'node:path'
 import chalk from 'chalk'
+import { Application } from '../src/Contracts/Application'
 
-class App {
+class App extends Application {
     registeredCommands: typeof Command[] = []
 }
 

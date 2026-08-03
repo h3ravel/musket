@@ -1,12 +1,13 @@
 import { MockInstance, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { Application } from '../src/Contracts/Application'
 import { Command } from '../src/Core/Command'
 import { Kernel } from '../src/Core/Kernel'
 import { TestCommand } from './Commands/TestCommand'
 import chalk from 'chalk'
 import path from 'node:path'
 
-class App {
+class App extends Application {
     registeredCommands: typeof Command[] = []
 }
 

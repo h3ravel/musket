@@ -7,8 +7,9 @@ import { Signature } from '../src/Signature'
 import { SignatureBuilder } from '../src/SignatureBuilder'
 import chalk from 'chalk'
 import path from 'node:path'
+import { Application } from '../src/Contracts/Application'
 
-class App {
+class App extends Application {
     registeredCommands: typeof Command[] = []
 }
 
@@ -93,11 +94,11 @@ describe('SignatureBuilder', () => {
 
     it('feeds the description through Command.getDescription/getSignature', () => {
         class BuiltCommand extends Command {
-            protected buildSignature (sig: SignatureBuilder) {
+            protected buildSignature(sig: SignatureBuilder) {
                 return sig.command('demo:built').describe('Demo description').option('flag')
             }
 
-            public async handle () { /** */ }
+            public async handle() { /** */ }
         }
 
         const cmd = new BuiltCommand(new App() as never, {} as never)
@@ -110,11 +111,11 @@ describe('SignatureBuilder', () => {
     it('lets the string signature take precedence over buildSignature', () => {
         class MixedCommand extends Command {
             protected signature = 'string:wins'
-            protected buildSignature (sig: SignatureBuilder) {
+            protected buildSignature(sig: SignatureBuilder) {
                 return sig.command('builder:loses')
             }
 
-            public async handle () { /** */ }
+            public async handle() { /** */ }
         }
 
         const cmd = new MixedCommand(new App() as never, {} as never)

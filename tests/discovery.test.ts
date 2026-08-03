@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { Application } from '../src/Contracts/Application'
 import { Command } from '../src/Core/Command'
 import { DupCommand } from './DiscoveryFixtures/Dup'
 import { Kernel } from '../src/Core/Kernel'
 import path from 'node:path'
 
-class App {
+class App extends Application {
     registeredCommands: typeof Command[] = []
-    musket?: unknown
 }
 
 const fixtures = (glob: string) => path.join(process.cwd(), 'tests/DiscoveryFixtures', glob)
@@ -44,7 +44,7 @@ describe('Command discovery', () => {
         class InjectedCommand extends Command {
             protected signature = 'disc:injected'
             protected description = 'Injected via importModule'
-            public async handle () { /** */ }
+            public async handle() { /** */ }
         }
 
         const importModule = vi.fn(async () => ({ InjectedCommand }))
